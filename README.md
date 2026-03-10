@@ -28,8 +28,10 @@ This works wonderfully for development, but as of right now anyone that would wa
 
  ## WebAssembly (wasm)
 
- For the backend side of this project we will be compiling our C++ code into `.wasm` files. Our special little compiler for this is [Emscripten](https://emscripten.org/index.html). You will need to download this from [here](https://emscripten.org/docs/getting_started/downloads.html#sdk-download-and-install).
+For the backend side of this project we will be compiling our C++ code into `.wasm` files. Our special little compiler for this is [Emscripten](https://emscripten.org/index.html). You will need to download this from [here](https://emscripten.org/docs/getting_started/downloads.html#sdk-download-and-install).
 
 To compile with this you use `emcc` very similarly to how we used `gcc` for compiling. Read the [docs](https://emscripten.org/docs/compiling/Building-Projects.html) to understand it better.
 
-I will be trying to make a camke for this so we don't have to think about it in the future. I will also try to make some kind of class structure to use to generalize visualizations but I'm not sure how I will be going about this. Just really wanted to get to a point where you guys have all the tools to do any work.
+There is one weird change that you will need to make to your clion settings. In `File > Settings > Build, Execution, Deployment > CMake > Build directory` you will need to change this default to .\backend\cmake-build-debug if you want to have clion open in `./TraceAndPace` instead of `./backend`. This would probably be important for the future when we want to be able to compile directly into `.wasm` in the `./frontend/cbuild` directory.
+
+I will be trying to make a camke for this so we don't have to think about it in the future. I will also try to make some kind of class structure to use to generalize visualizations but I'm not sure how I will be going about this (Right now im thinking somekind of ABC). Just really wanted to get to a point where you guys have all the tools to do any work.
