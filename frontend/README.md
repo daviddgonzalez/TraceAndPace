@@ -1,37 +1,3 @@
-# Michael's Additions to the Documentation
-
-There are a few quirks with our development pipeline we are going to be working with. Our workflow is going to be a frontend of HTML and typescript. The backend will be written in C++ but compiled into 
-
-## Node.js
-
-You need to download and install [Node.js](https://nodejs.org/en).
-
-After thats all done cd into `./frontend` then run these few commands. 
-
-```bash
-npm install
-npm fund
-npm run dev
-o
-```
-This will install all of the dependencies. Run the development enviroment and open it in your browser.
-
-### Development and Deployment
-
-As of right now you have the development enviroment running and any changes you make to the React code base should be show in your browser as soon as your changes are saved. 
-
-This works wonderfully for development, but as of right now anyone that would want to use our program would have to go through everything above to use our code. There is this handy plugin that I've installed that changes how `npm run build` works. This will compile our code into a single `index.html` file that someone could run and open in their browser to use our code.
-
- These files that are generated in the `./frontend/dist` folder (generated after you execute `npm run build` for the first time) is what we will be submitting.
-
- ## WebAssembly (wasm)
-
- For the backend side of this project we will be compiling our C++ code into `.wasm` files. Our special little compiler for this is [Emscripten](https://emscripten.org/index.html). You will need to download this from [here](https://emscripten.org/docs/getting_started/downloads.html#sdk-download-and-install).
-
-To compile with this you use `emcc` very similarly to how we used `gcc` for compiling. Read the [docs](https://emscripten.org/docs/compiling/Building-Projects.html) to understand it better.
-
-I will be trying to make a camke for this so we don't have to think about it in the future. I will also try to make some kind of class structure to use to generalize visualizations but I'm not sure how I will be going about this. Just really wanted to get to a point where you guys have all the tools to do any work.
-
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
