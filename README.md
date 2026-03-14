@@ -32,6 +32,11 @@ For the backend side of this project we will be compiling our C++ code into `.wa
 
 To compile with this you use `emcc` very similarly to how we used `gcc` for compiling. Read the [docs](https://emscripten.org/docs/compiling/Building-Projects.html) to understand it better.
 
-There is one weird change that you will need to make to your clion settings. In `File > Settings > Build, Execution, Deployment > CMake > Build directory` you will need to change this default to .\backend\cmake-build-debug if you want to have clion open in `./TraceAndPace` instead of `./backend`. This would probably be important for the future when we want to be able to compile directly into `.wasm` in the `./frontend/cbuild` directory.
 
-I will be trying to make a camke for this so we don't have to think about it in the future. I will also try to make some kind of class structure to use to generalize visualizations but I'm not sure how I will be going about this (Right now im thinking somekind of ABC). Just really wanted to get to a point where you guys have all the tools to do any work.
+## CMake Configuration
+There is one weird change that you will need to make to your clion settings. In `File > Settings > Build, Execution, Deployment > CMake > Build directory` you will need to change this default to .\backend\cmake-build-debug if you want to have clion open in `./TraceAndPace` instead of `./backend`. This changed the build directory for the default `Debug` CMake profile.
+
+You will also want to make another CMake profile that looks like the below. ![A picture of the CMake profile editor in CLion.](./ExampleCMakeProfile.png)
+The CMake options is just has `-DCMAKE_TOOLCHAIN_FILE=<YourEmscriptenCloneLocation>/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake`. You must also change the build directory to `./frontend/cbuild`. The current CMake will work to compile everything into `.wasm` with the correct flags.
+
+ I will also try to make some kind of class structure to use to generalize visualizations but I'm not sure how I will be going about this (Right now im thinking somekind of ABC). I'm also not sure how we will have the frontend and backend comunicate. Link sugested a `.json` file.

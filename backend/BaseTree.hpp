@@ -1,5 +1,11 @@
 #pragma once
 
-int out() {
-    return 1;
-}
+template <typename T>
+class BaseTree {
+public:
+    struct Node {
+
+    };
+private:
+
+};
