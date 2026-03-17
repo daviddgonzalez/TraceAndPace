@@ -1,6 +1,7 @@
 #include <iostream>
 #include <emscripten/bind.h>
 #include "BaseTree.hpp"
+#include "AVLTree.hpp"
 
 // int main() {
 //

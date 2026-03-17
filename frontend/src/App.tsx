@@ -4,22 +4,11 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 
-// I got this way to work around the imports from https://stackoverflow.com/questions/76477419/loading-wasm-with-react-ts-and-vitejs
-import wasmUrl from './wasm/TraceAndPace.wasm?url';
 import WasmFactory from './wasm/TraceAndPace.mjs';
 import type {MainModule} from './wasm/TraceAndPace.d.mts';
 
-// need to steal the import from the .mjs because react could hash the directory away in production builds
-// this is the code to correctly start the c++ code.
 const initializeWasm = async (): Promise<MainModule> => {
-    return await WasmFactory({
-        locateFile: (path: string) => {
-            if (path.endsWith('.wasm')) {
-                return wasmUrl; // Serve the Vite-resolved hashed URL
-            }
-            return path;
-        }
-    });
+    return await WasmFactory();
 };
 
 // this needs to be outside the react element so it only runs once.

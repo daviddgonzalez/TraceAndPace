@@ -1,44 +1,54 @@
 #pragma once
-#include <filesystem>
 
 template <typename T>
 class BaseTree {
 public:
     BaseTree() = default;
     BaseTree(BaseTree& other) {
-        head = copyNode(other.head);
+        root = copyNode(other.root);
     }
     virtual BaseTree& operator=(BaseTree& other) {
         if (this == &other)
             return *this;
-        delete head;
-        head = copyNode(other.head);
+        delete root;
+        root = copyNode(other.root);
         return &this;
     }
     BaseTree(BaseTree&& other) {
-        head = other.head;
-        other.head = nullptr;
+        root = other.root;
+        other.root = nullptr;
     };
     virtual BaseTree& operator=(BaseTree&& other){
         if (this == &other)
             return *this;
-        delete head;
-        head = other.head;
-        other.head = nullptr;
+        delete root;
+        root = other.root;
+        other.root = nullptr;
     }
     virtual ~BaseTree() {
-        delete head;
+        delete root;
     }
 
-    virtual void insert(int i, T value) = 0;
-    virtual void remove(int i) = 0;
-    virtual T find(int i) = 0;
+    virtual bool insert(const int& i, const T& value) = 0;
+    virtual bool remove(const int& i) = 0;
+    virtual T find(const int& i) = 0;
+    virtual int height() {
+        if (root)
+            return root->height;
+        return 0;
+    };
 protected:
     struct Node {
         // these are the values each node could hold. It's a vector because of B trees
         std::vector<std::pair<int,T>> values;
         std::vector<Node*> childrenNodes;
+        static const int NUM_CHILDREN;
         Node* parent = nullptr;
+        int height = 0;
+
+        Node() {
+            values.reserve(NUM_CHILDREN);
+        }
 
         ~Node() {
             for (Node* node : childrenNodes)
@@ -46,15 +56,17 @@ protected:
         }
     };
 
-    Node* head = nullptr;
+    
 private:
+    Node* root = nullptr;
     // im making this private but if its needed in the future make it protected
     Node* copyNode(Node* other) {
         Node* out = new Node();
-        out.values = other.values;
+        out->values = other->values;
         for (Node* node : other->childrenNodes) {
             out->childrenNodes.push_back(copyNode(node));
             out->childrenNodes.back()->parent = out;
+            out->childrenNodes.back()->height = node->height;
         }
         return out;
     }

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/micha/COP3530/projects/P2/TraceAndPace/./backend -I/home/micha/COP3530/projects/P2/TraceAndPace/./frontend/cbuild
+CXX_INCLUDES = -I/home/micha/COP3530/projects/P2/TraceAndPace/./backend -I/home/micha/COP3530/projects/P2/TraceAndPace/./frontend/cbuild -I/home/micha/COP3530/projects/P2/TraceAndPace/./frontend/src/wasm
 
 CXX_FLAGS = -g -std=gnu++17 -fdiagnostics-color=always
 
