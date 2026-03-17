@@ -15,9 +15,11 @@ const initializeWasm = async (): Promise<MainModule> => {
 // it isnt guaranteed to be loaded instantly so you must call use() on it whenever you use it.
 const wasmPromise = initializeWasm();
 
-function App() {
-  const [count, setCount] = useState(0)
 
+
+function App() {
+  const [count, setCount] = useState(0);
+  const tree = new (use(wasmPromise).AVLTree);
   return (
     <>
       <div>
@@ -41,7 +43,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
         <Suspense> {/* must treat a use hook as throwing an error and have to catch it with a suspense bracket */}
-            {use(wasmPromise).helloWorld()}
+            {tree.insert(5,"dog")}{tree.find(5)}
         </Suspense>
     </>
   )

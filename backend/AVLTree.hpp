@@ -1,28 +1,28 @@
 // A lot of this code was "inspired" by I (michael capelli's) project 1 code
 
 #pragma once
-#include <emscripten/bind.h>
 #include "BaseTree.hpp"
 
 template <typename T>
 class AVLTree : public BaseTree<T> {
 public:
     // must make sure that there is space for 2
-    AVLTree() : Node::NUM_CHILDREN(2) {}
+    AVLTree() : BaseTree<T>(2) {}
 
-    bool insert(const int& id, const T& item) {
-        Node* toInsert = new Node(id,item);
+    bool insert(int id, T item) override {
+        Node* toInsert = new Node();
+        toInsert->values.push_back({id, item});
 
         if (root == nullptr) {
             root = toInsert;
         }else {
             Node* current = root;
             while (current != nullptr) {
-                if (current->id == id) {
+                if (current->values.front().first == id) {
                     delete toInsert;
                     return false;
                 }
-                if (id > current->id) {
+                if (id > current->values.front().first) {
                     if (current->childrenNodes[1] == nullptr) {
                         current->childrenNodes[1] = toInsert;
                         toInsert->parent = current;
@@ -46,7 +46,7 @@ public:
     }
 
     // removal logic, there is no balancing after removal, just bst removal
-    bool remove(int id) {
+    bool remove(int id) override {
         Node* node = findNode(id);
         Node* nodeHeightToUpdate;
         if (node == nullptr)
@@ -126,24 +126,29 @@ public:
         updateHeight(nodeHeightToUpdate);
         return true;
     }
-    T find(int id) {
+    T find(int id) override {
         Node* node = findNode(id);
         if (node != nullptr) {
             successfulSearch = true;
-            return node->value;
+            return node->values.front().second;
         }
         successfulSearch = false;
         return T();
     }
+    int height() override {return BaseTree<T>::height();}
 protected:
+    // making each access to the parents members less verbose
+    using typename BaseTree<T>::Node;
+    using BaseTree<T>::successfulSearch;
+    using BaseTree<T>::root;
 
     Node* findNode(int id) {
         Node* current = root;
         while (current != nullptr) {
-            if (current->id == id)
+            if (current->values.front().first == id)
                 return current;
 
-            if (id > current->id)
+            if (id > current->values.front().first)
                 current = current->childrenNodes[1];
             else
                 current = current->childrenNodes[0];
@@ -172,7 +177,7 @@ protected:
 
             // this makes sure that after rotation the parents left and right pointers point to the right places
             if ((balanceFactor < -1 || balanceFactor > 1) && node->parent) {
-                if (node->parent->id > node->id)
+                if (node->parent->values.front().first > node->values.front().first)
                     node->parent->childrenNodes[0] = node;
                 else
                     node->parent->childrenNodes[1] = node;
@@ -258,13 +263,3 @@ protected:
         }
     }
 };
-
-
-EMSCRIPTEN_BINDINGS(avl_module) {
-    emscripten::class_<AVLTree<std::string>>("AVLTree")
-        .constructor<>()
-        .function("insert", &AVLTree<std::string>::insert)
-        .function("remove", &AVLTree<std::string>::remove)
-        .function("find", &AVLTree<std::string>::find)
-        .function("height", &AVLTree<std::string>::height);
-}

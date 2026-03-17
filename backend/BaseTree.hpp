@@ -1,78 +1,82 @@
 #pragma once
-#include <filesystem>
 #include <vector>
-#include <pair>
 #include <utility>
 
 template <typename T>
-class BaseTree
-{
+class BaseTree {
 public:
-    BaseTree() = default;
-    BaseTree(BaseTree &other)
-    {
-        head = copyNode(other.head);
+    BaseTree(const int& numChildren) {
+        Node::NUM_CHILDREN = numChildren;
     }
-    virtual BaseTree &operator=(BaseTree &other)
-    {
+
+    BaseTree(const BaseTree& other) {
+        root = copyNode(other.root);
+    }
+
+    BaseTree& operator=(const BaseTree& other) {
         if (this == &other)
             return *this;
-        delete head;
-        if (other.head == nullptr)
-        {
-            head = nullptr;
+        delete root;
+        if (other.root == nullptr) {
+            root = nullptr;
             return *this;
         }
-        head = copyNode(other.head);
+        root = copyNode(other.root);
         return *this; // changed from &this to *this
     }
-    BaseTree(BaseTree &&other)
-    {
-        head = other.head;
-        other.head = nullptr;
+
+    BaseTree(BaseTree&& other)  noexcept {
+        root = other.root;
+        other.root = nullptr;
     };
-    virtual BaseTree &operator=(BaseTree &&other)
-    {
+
+    BaseTree& operator=(BaseTree&& other)  noexcept {
         if (this == &other)
             return *this;
-        delete head;
-        head = other.head;
-        other.head = nullptr;
-        return *this; // make return types consistent, if if statement is triggered you return *this else you dont return anything.
-    }
-    virtual ~BaseTree()
-    {
-        delete head;
+        delete root;
+        root = other.root;
+        other.root = nullptr;
+        return *this;
+        // make return types consistent, if if statement is triggered you return *this else you dont return anything.
     }
 
-    virtual void insert(int i, T value) = 0;
-    virtual void remove(int i) = 0;
+    virtual ~BaseTree() {
+        delete root;
+    }
+
+    virtual bool insert(int i, T value) = 0;
+    virtual bool remove(int i) = 0;
     virtual T find(int i) = 0;
+    virtual int height() {return root ? root->height : 0;}
 
 protected:
-    struct Node
-    {
+    bool successfulSearch = false;
+
+    struct Node {
         // these are the values each node could hold. It's a vector because of B trees
         std::vector<std::pair<int, T>> values;
-        std::vector<Node *> childrenNodes;
-        Node *parent = nullptr;
+        std::vector<Node*> childrenNodes;
+        inline static int NUM_CHILDREN = 0;
+        Node* parent = nullptr;
+        int height = 0;
 
-        ~Node()
-        {
-            for (Node *node : childrenNodes)
+        Node() {
+            childrenNodes.assign(NUM_CHILDREN, nullptr);
+        }
+
+        ~Node() {
+            for (Node* node : childrenNodes)
                 delete node;
         }
     };
 
-    Node *head = nullptr;
+    Node* root = nullptr;
 
 private:
-    Node *copyNode(Node *other)
-    {
-        Node *out = new Node();
+    Node* copyNode(Node* other) {
+        Node* out = new Node();
         out->values = other->values; // making this out->value = other->value; out/other are pointers
-        for (Node *node : other->childrenNodes)
-        {
+        for (Node* node : other->childrenNodes) {
             out->childrenNodes.push_back(copyNode(node));
             out->childrenNodes.back()->parent = out;
             out->childrenNodes.back()->height = node->height;
