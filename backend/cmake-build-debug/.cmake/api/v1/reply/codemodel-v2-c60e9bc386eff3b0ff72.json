@@ -39,7 +39,11 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "TraceAndPace::@6890427a1f51a3e7e1df",
+<<<<<<<< HEAD:backend/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-c60e9bc386eff3b0ff72.json
 					"jsonFile" : "target-TraceAndPace-Debug-e8c5ab3ba1b41f8e4d84.json",
+========
+					"jsonFile" : "target-TraceAndPace-Debug-ec566c0386c681ee355e.json",
+>>>>>>>> 718e4f059b61ad8c9aae0daeafa40882ad602d14:backend/cmake-build-debug/.cmake/api/v1/reply/codemodel-v2-bd76d6f52ba72bc1f543.json
 					"name" : "TraceAndPace",
 					"projectIndex" : 0
 				}
