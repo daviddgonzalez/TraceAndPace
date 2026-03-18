@@ -1,52 +1,63 @@
 #pragma once
 #include <filesystem>
 #include <vector>
-#include <pair>
 #include <utility>
+#include <iostream>
 
 template <typename T>
 class BaseTree
 {
 public:
     BaseTree() = default;
-    BaseTree(BaseTree &other)
+
+    BaseTree(const BaseTree &other)
     {
         head = copyNode(other.head);
     }
-    virtual BaseTree &operator=(BaseTree &other)
+
+    virtual BaseTree &operator=(const BaseTree &other)
     {
         if (this == &other)
             return *this;
+
         delete head;
+
         if (other.head == nullptr)
         {
+
             head = nullptr;
             return *this;
         }
+
         head = copyNode(other.head);
-        return *this; // changed from &this to *this
+        return (*this);
     }
     BaseTree(BaseTree &&other)
     {
+
         head = other.head;
         other.head = nullptr;
     };
     virtual BaseTree &operator=(BaseTree &&other)
     {
+
         if (this == &other)
             return *this;
+
         delete head;
+
         head = other.head;
         other.head = nullptr;
-        return *this; // make return types consistent, if if statement is triggered you return *this else you dont return anything.
+
+        return *this;
     }
     virtual ~BaseTree()
     {
         delete head;
     }
 
-    virtual void insert(int i, T value) = 0;
-    virtual void remove(int i) = 0;
+    virtual bool insert(int i, T value) = 0; // bool if successful or not
+    virtual bool remove(int i) = 0;          // same for ts one
     virtual T find(int i) = 0;
 
 protected:
@@ -71,12 +82,19 @@ private:
     Node *copyNode(Node *other)
     {
         Node *out = new Node();
+
+        if (other == nullptr)
+        {
+            return nullptr;
+        }
+
         out->values = other->values; // making this out->value = other->value; out/other are pointers
         for (Node *node : other->childrenNodes)
         {
             out->childrenNodes.push_back(copyNode(node));
             out->childrenNodes.back()->parent = out;
         }
-        return out;
+
+                return out;
     }
 };

@@ -1,4 +1,4 @@
-/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -S /home/micha/COP3530/projects/P2/TraceAndPace -B /home/micha/COP3530/projects/P2/TraceAndPace/backend/cmake-build-debug
--- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /home/micha/COP3530/projects/P2/TraceAndPace/backend/cmake-build-debug
+/usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -S /mnt/c/TraceAndPace -B /mnt/c/TraceAndPace/backend/cmake-build-debug
+-- Configuring done (0.1s)
+-- Generating done (0.2s)
+-- Build files have been written to: /mnt/c/TraceAndPace/backend/cmake-build-debug

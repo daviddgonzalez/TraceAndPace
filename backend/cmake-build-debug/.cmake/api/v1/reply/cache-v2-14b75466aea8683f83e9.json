@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/micha/COP3530/projects/P2/TraceAndPace/backend/cmake-build-debug"
+			"value" : "/mnt/c/TraceAndPace/backend/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -543,7 +543,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/micha/COP3530/projects/P2/TraceAndPace/backend/cmake-build-debug/CMakeFiles/pkgRedirects"
+			"value" : "/mnt/c/TraceAndPace/backend/cmake-build-debug/CMakeFiles/pkgRedirects"
 		},
 		{
 			"name" : "CMAKE_GENERATOR",
@@ -603,7 +603,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/home/micha/COP3530/projects/P2/TraceAndPace"
+			"value" : "/mnt/c/TraceAndPace"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1146,42 +1146,6 @@
 			"value" : "FALSE"
 		},
 		{
-			"name" : "Project_BINARY_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "/home/micha/COP3530/projects/P2/TraceAndPace/backend/cmake-build-debug"
-		},
-		{
-			"name" : "Project_IS_TOP_LEVEL",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "ON"
-		},
-		{
-			"name" : "Project_SOURCE_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "/home/micha/COP3530/projects/P2/TraceAndPace"
-		},
-		{
 			"name" : "TraceAndPace_BINARY_DIR",
 			"properties" : 
 			[
@@ -1191,7 +1155,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/micha/COP3530/projects/P2/TraceAndPace/backend/cmake-build-debug"
+			"value" : "/mnt/c/TraceAndPace/backend/cmake-build-debug"
 		},
 		{
 			"name" : "TraceAndPace_IS_TOP_LEVEL",
@@ -1215,7 +1179,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/home/micha/COP3530/projects/P2/TraceAndPace"
+			"value" : "/mnt/c/TraceAndPace"
 		},
 		{
 			"name" : "_CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED",

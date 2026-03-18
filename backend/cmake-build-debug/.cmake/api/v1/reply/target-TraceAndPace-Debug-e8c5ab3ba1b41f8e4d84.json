@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "/home/micha/COP3530/projects/P2/TraceAndPace/frontend/src/wasm/TraceAndPace.mjs"
+			"path" : "/mnt/c/TraceAndPace/frontend/src/wasm/TraceAndPace.mjs"
 		}
 	],
 	"backtrace" : 1,
@@ -55,11 +55,11 @@
 			[
 				{
 					"backtrace" : 2,
-					"path" : "/home/micha/COP3530/projects/P2/TraceAndPace/./backend"
+					"path" : "/mnt/c/TraceAndPace/./backend"
 				},
 				{
 					"backtrace" : 3,
-					"path" : "/home/micha/COP3530/projects/P2/TraceAndPace/./frontend/cbuild"
+					"path" : "/mnt/c/TraceAndPace/./frontend/cbuild"
 				}
 			],
 			"language" : "CXX",
@@ -87,7 +87,7 @@
 				"role" : "flags"
 			},
 			{
-				"fragment" : "-g -s SINGLE_FILE=1 --embed-file /home/micha/COP3530/projects/P2/TraceAndPace/frontend/src/assets@/assets --bind --emit-tsd TraceAndPace.d.mts",
+				"fragment" : "-g -s SINGLE_FILE=1 --embed-file /mnt/c/TraceAndPace/frontend/src/assets@/assets --bind --emit-tsd TraceAndPace.d.mts",
 				"role" : "flags"
 			}
 		],
