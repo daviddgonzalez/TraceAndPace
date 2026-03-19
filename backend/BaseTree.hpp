@@ -2,15 +2,14 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+#include <cmath>
+#include<algorithm>
 
 template <typename T>
 class BaseTree
 {
 public:
-    BaseTree(const int &numChildren)
-    {
-        Node::NUM_CHILDREN = numChildren;
-    }
+    BaseTree(){};
 
     BaseTree(const BaseTree &other)
     {
@@ -66,14 +65,15 @@ protected:
         // these are the values each node could hold. It's a vector because of B trees
         std::vector<std::pair<int, T>> values;
         std::vector<Node *> childrenNodes;
-        inline static int NUM_CHILDREN = 0;
+
+        //Please dont make numchildren static - every tree should be able to have its own # of children
+        //And js let every tree handle it separately
+
         Node *parent = nullptr;
         int height = 0;
 
         Node()
-        {
-            childrenNodes.assign(NUM_CHILDREN, nullptr);
-        }
+        {} //michael please dont change it messes with BTree
 
         ~Node()
         {
@@ -88,12 +88,11 @@ private:
     // im making this private but if its needed in the future make it protected
     Node *copyNode(Node *other)
     {
-        Node *out = new Node();
-
-        if (other == nullptr)
-        {
+        if (other == nullptr){
             return nullptr;
         }
+
+        Node *out = new Node();
 
         out->values = other->values; // making this out->value = other->value; out/other are pointers
         for (Node *node : other->childrenNodes)
