@@ -130,8 +130,8 @@
 	"kind" : "cmakeFiles",
 	"paths" : 
 	{
-		"build" : "/home/micha/COP3530/projects/P2/TraceAndPace/backend/cmake-build-debug",
-		"source" : "/home/micha/COP3530/projects/P2/TraceAndPace"
+		"build" : "/mnt/c/TraceAndPace/backend/cmake-build-debug",
+		"source" : "/mnt/c/TraceAndPace"
 	},
 	"version" : 
 	{

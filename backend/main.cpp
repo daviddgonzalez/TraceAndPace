@@ -21,5 +21,4 @@ EMSCRIPTEN_BINDINGS(testing_module) {
         .function("insert", &AVLTree<std::string>::insert)
         .function("remove", &AVLTree<std::string>::remove)
         .function("find", &AVLTree<std::string>::find)
-        .function("height", &AVLTree<std::string>::height);
-}
+        .function("height", &AVLTree<std::string>::heig

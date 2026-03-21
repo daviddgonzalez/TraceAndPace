@@ -20,11 +20,13 @@ This will install all of the dependencies. Run the development enviroment and op
 
 ### Development and Deployment
 
-As of right now you have the development enviroment running and any changes you make to the React code base should be show in your browser as soon as your changes are saved. 
+As of right now you have the development enviroment running and any changes you make to the React code base should be show in your browser as soon as your changes are saved.
 
 This works wonderfully for development, but as of right now anyone that would want to use our program would have to go through everything above to use our code. There is this handy plugin that I've installed that changes how `npm run build` works. This will compile our code into a single `index.html` file that someone could run and open in their browser to use our code.
 
  These files that are generated in the `./frontend/dist` folder (generated after you execute `npm run build` for the first time) is what we will be submitting.
+
+ As for how we are making our frontend I (Michael) am using bootstrap to make things look nice. You can read the docs [here](https://getbootstrap.com/docs/5.3/getting-started/introduction/). You are welcomed to use anything else if you choose, just don't try and use both bootstrap and something else at the sametime. That is a recipe for disaster.
 
  ## WebAssembly (wasm)
 
