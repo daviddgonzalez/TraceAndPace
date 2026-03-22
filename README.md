@@ -41,4 +41,6 @@ There is one weird change that you will need to make to your clion settings. In 
 You will also want to make another CMake profile that looks like the below. ![A picture of the CMake profile editor in CLion.](./ExampleCMakeProfile.png)
 The CMake options is just has `-DCMAKE_TOOLCHAIN_FILE=<YourEmscriptenCloneLocation>/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake`. You must also change the build directory to `./frontend/cbuild`. The current CMake will work to compile everything into `.wasm` with the correct flags.
 
- I will also try to make some kind of class structure to use to generalize visualizations but I'm not sure how I will be going about this (Right now im thinking somekind of ABC). I'm also not sure how we will have the frontend and backend comunicate. Link sugested a `.json` file.
+After that go to the CMakeLists.txt file and click on the little icon near the upper right hand side. This will make the build configuration. Then select the dropdown to the left of the build hammer that says debug. Now click on your new Emscripten profile and you can compile. It should look like this picture ![why do you care what this says your not blind](./ExampleTopBar.png)
+
+I will also try to make some kind of class structure to use to generalize visualizations but I'm not sure how I will be going about this (Right now im thinking somekind of ABC). I'm also not sure how we will have the frontend and backend comunicate. Link sugested a `.json` file.

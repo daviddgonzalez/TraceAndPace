@@ -6,12 +6,12 @@
 template <typename T>
 class AVLTree : public BaseTree<T> {
 public:
-    // must make sure that there is space for 2
-    AVLTree() : BaseTree<T>(2) {}
+    AVLTree() = default;
 
     bool insert(int id, T item) override {
         Node* toInsert = new Node();
         toInsert->values.push_back({id, item});
+        toInsert->childrenNodes.assign(2,nullptr); // i greatly dislike how this looks
 
         if (root == nullptr) {
             root = toInsert;

@@ -11,9 +11,10 @@ include_directories(./frontend/cbuild)
 include_directories(./frontend/src/wasm)
 
 set(SOURCE_FILES
-        "./backend/BaseTree.hpp"
-        "./backend/main.cpp"
-        "./backend/AVLTree.hpp"
+        backend/BaseTree.hpp
+        backend/main.cpp
+        backend/AVLTree.hpp
+        backend/BTree.hpp
 )
 
 add_executable(TraceAndPace ${SOURCE_FILES})

@@ -1,9 +1,5 @@
 function Visualization() {
-    return (
-        <>
-            
-        </>
-    );
+  return <>Im just a basic visulaizer</>;
 }
 
-export default Visualization;  
+export default Visualization;

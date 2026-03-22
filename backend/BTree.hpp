@@ -33,7 +33,7 @@ public:
         return *this;
     }
 
-    ~VisualBTree(){}; //When I made this destructor I tried expliclity calling base tree destructor - DONT, it'd be a double delete. this implicility calls it
+    ~VisualBTree(){}; //When I made this destructor I tried expliclity calling base tree destructor - DONT, it'd be a double delete. this implicility calls it // ofc it is david, did you not learn anything about destructors and inheritance in links class - michael
 
 
     // search returns if it was successful and a pointer to the node
