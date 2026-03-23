@@ -20,7 +20,7 @@ EMSCRIPTEN_BINDINGS(testing_module) {
     emscripten::function("addTree", &addTree);
     emscripten::function("insertToTrees", &insertToTrees);
     emscripten::function("removeFromTrees", &removeFromTrees);
-    
+    emscripten::function("numOfTrees", &numOfTrees);
 
     // i removed any exporting of objects, decided that all the objects will be managed in cpp
     // we will only export functions that will be called on button presses if that makes sense

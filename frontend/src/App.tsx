@@ -151,7 +151,12 @@ function App() {
         </div>
       </nav>
 
-      <div className="container">{}</div>
+      <div className="container">
+        {/* DAVID! fix this. currently this doesnt get prompted for a rerender when one of the buttons are pressed. This means that the new visualization insnt shown until after you modify something else. */}
+        {Array.from({ length: wasm.numOfTrees() }).map((_, i) => (
+          <Visualization key={i} />
+        ))}
+      </div>
     </>
   );
 }

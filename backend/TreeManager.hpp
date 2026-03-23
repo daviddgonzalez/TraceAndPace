@@ -30,3 +30,6 @@ bool findInTrees(int number) {
             return false;
     return true;
 }
+int numOfTrees() {
+    return trees.size();
+}

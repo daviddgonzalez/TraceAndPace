@@ -17,6 +17,7 @@ interface EmbindModule {
   addTree(): void;
   insertToTrees(_0: number): void;
   removeFromTrees(_0: number): boolean;
+  numOfTrees(): number;
 }
 
 export type MainModule = WasmModule & typeof RuntimeExports & EmbindModule;
