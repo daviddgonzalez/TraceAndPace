@@ -15,6 +15,7 @@ set(SOURCE_FILES
         backend/main.cpp
         backend/AVLTree.hpp
         backend/BTree.hpp
+        backend/TreeManager.hpp
 )
 
 add_executable(TraceAndPace ${SOURCE_FILES})

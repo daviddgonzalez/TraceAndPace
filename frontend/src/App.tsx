@@ -1,6 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
+import { Suspense, use, useState } from "react";
 
 import WasmFactory from "./wasm/TraceAndPace.mjs";
 import type { MainModule } from "./wasm/TraceAndPace.d.mts";
@@ -11,19 +12,18 @@ const initializeWasm = async (): Promise<MainModule> => {
 };
 
 // this needs to be outside the react element so it only runs once.
-// it isnt guaranteed to be loaded instantly so you must call use() on it whenever you use it.
 const wasmPromise = initializeWasm();
 
-import { useState } from "react";
-
 function App() {
-  // array of numbers, the ids to trees
-  const [trees, setTrees] = useState<number[]>([0]);
+  // need to call use becuase its resolution is asyncronous
+  const wasm = use(wasmPromise);
 
-  const addTree = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setTrees([...trees, trees.length]); // this is replacing the old array with a whole new array plus the new array
-  };
+  // these are strings because react will treat the input as a string the event that we are reading it from returns a string
+  // we will only try and parse it into a number once the user submits the form. This allows them to type a negative sign
+  // there are restrictions on the input tags that allow only numbers, means it will always be a number
+  // interestingly this also allows for scientific notation, thats some pretty nifty validation that we got for free
+  const [insertInput, setInsertInput] = useState<string>("");
+  const [removeInput, setRemoveInput] = useState<string>("");
 
   return (
     <>
@@ -58,37 +58,100 @@ function App() {
                 </a>
                 <ul className="dropdown-menu">
                   <li>
-                    <a className="dropdown-item" href="#" onClick={addTree}>
+                    <button
+                      className="dropdown-item"
+                      type="button"
+                      onClick={() => wasm.addTree()}
+                    >
                       B Tree
-                    </a>
+                    </button>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="#" onClick={addTree}>
+                    <button
+                      className="dropdown-item"
+                      type="button"
+                      onClick={() => wasm.addTree()}
+                    >
                       B+ Tree
-                    </a>
+                    </button>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="#" onClick={addTree}>
+                    <button
+                      className="dropdown-item"
+                      type="button"
+                      onClick={() => wasm.addTree()}
+                    >
                       AVL Tree
-                    </a>
+                    </button>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="#" onClick={addTree}>
+                    <button
+                      className="dropdown-item"
+                      type="button"
+                      onClick={() => wasm.addTree()}
+                    >
                       Splay
-                    </a>
+                    </button>
                   </li>
                 </ul>
               </li>
             </ul>
           </div>
+          {/* This is that little input bar for inserting numbers */}
+          <form
+            className="d-flex"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const num = parseInt(insertInput, 10);
+              if (!isNaN(num)) {
+                wasm.insertToTrees(num);
+                setInsertInput("");
+              }
+            }}
+          >
+            <input
+              className="form-control me-2"
+              type="number"
+              placeholder="Insert Element"
+              aria-label="Search"
+              value={insertInput}
+              onChange={(e) => setInsertInput(e.target.value)}
+            />
+            <button className="btn btn-outline-success" type="submit">
+              Insert
+            </button>
+          </form>
+          {/* This is that little input bar for removing numbers */}
+          <form
+            className="d-flex"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const num = parseInt(removeInput, 10);
+              if (!isNaN(num)) {
+                wasm.removeFromTrees(num);
+                setRemoveInput("");
+              }
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            <input
+              className="form-control me-2"
+              type="number"
+              placeholder="Remove Element"
+              aria-label="Search"
+              value={removeInput}
+              onChange={(e) => setRemoveInput(e.target.value)}
+            />
+            <button className="btn btn-outline-success" type="submit">
+              Remove
+            </button>
+          </form>
         </div>
       </nav>
 
-      <div className="container">
-        {trees.map((id) => (
-          <Visualization key={id} />
-        ))}
-      </div>
+      <div className="container">{}</div>
     </>
   );
 }

@@ -1,7 +1,8 @@
 #include <iostream>
 #include <emscripten/bind.h>
-#include "BaseTree.hpp"
-#include "AVLTree.hpp"
+#include "TreeManager.hpp"
+
+// This is the main entry point of out cpp code and where all the embindings will be
 
 // int main() {
 //
@@ -16,10 +17,11 @@ std::string helloWorld() {
 EMSCRIPTEN_BINDINGS(testing_module) {
     emscripten::function("helloWorld", &helloWorld);
 
-    emscripten::class_<AVLTree<std::string>>("AVLTree")
-        .constructor<>()
-        .function("insert", &AVLTree<std::string>::insert)
-        .function("remove", &AVLTree<std::string>::remove)
-        .function("find", &AVLTree<std::string>::find)
-        .function("height", &AVLTree<std::string>::height);
+    emscripten::function("addTree", &addTree);
+    emscripten::function("insertToTrees", &insertToTrees);
+    emscripten::function("removeFromTrees", &removeFromTrees);
+    
+
+    // i removed any exporting of objects, decided that all the objects will be managed in cpp
+    // we will only export functions that will be called on button presses if that makes sense
 }
