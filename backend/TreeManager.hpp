@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <thread>
+#include <barrier>
 
 #include "AVLTree.hpp"
 #include "BaseTree.hpp"
@@ -8,28 +10,71 @@
 
 std::vector<BaseTree<std::string>*> trees;
 
-/// all these methods are inherently flawed... they do all these things in series not parallel
-// TODO: make it so that they do it right
+
 
 void addTree() {
     trees.push_back(new AVLTree<std::string>);
 }
 void insertToTrees(int number) {
+    if (trees.empty())
+        return;
+
+    std::vector<std::thread> threads;
+    threads.reserve(trees.size());
+    std::barrier barrier(trees.size());
+
     for (BaseTree<std::string>* tree : trees)
-        tree->insert(number, std::to_string(number));
+        threads.emplace_back([tree, &number, &barrier]() {
+            barrier.arrive_and_wait();
+            tree->insert(number, std::to_string(number));
+        });
+
+    for (std::thread& thread : threads)
+        thread.join();
 }
 bool removeFromTrees(int number) {
+    if (trees.empty())
+        return true;
+
+    std::atomic out = true;
+
+    std::vector<std::thread> threads;
+    threads.reserve(trees.size());
+    std::barrier barrier(trees.size());
+
     for (BaseTree<std::string>* tree : trees)
-        if (!tree->remove(number))
-            return false; // there should never be a world where an element is found in one tree but not another
-    return true;
+        threads.emplace_back([tree, &barrier, &number, &out]() {
+            // copying the pointer but the rest should be by reference
+            barrier.arrive_and_wait();
+            if (!tree->remove(number))
+                out = false;
+        });
+
+    for (std::thread& thread : threads)
+        thread.join();
+
+    return out;
 }
 bool findInTrees(int number) {
+    if (trees.empty())
+        return true;
+
+    std::atomic out = true;
+
+    std::vector<std::thread> threads;
+    threads.reserve(trees.size());
+    std::barrier barrier(trees.size());
+
     for (BaseTree<std::string>* tree : trees)
-        if (std::to_string(number) != tree->find(number))
-            return false;
-    return true;
+        threads.emplace_back([tree, &out, &number, &barrier]() {
+            barrier.arrive_and_wait();
+
+            if (std::to_string(number) != tree->find(number))
+                out = false;
+        });
+    return out;
 }
-int numOfTrees() {
-    return trees.size();
+void removeTree(int index) {
+    delete trees.at(index);
+    trees.erase(trees.begin()+index);
 }

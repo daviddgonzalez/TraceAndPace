@@ -2,6 +2,7 @@
 #include <emscripten/bind.h>
 #include "TreeManager.hpp"
 
+
 // This is the main entry point of out cpp code and where all the embindings will be
 
 // int main() {
@@ -20,7 +21,9 @@ EMSCRIPTEN_BINDINGS(testing_module) {
     emscripten::function("addTree", &addTree);
     emscripten::function("insertToTrees", &insertToTrees);
     emscripten::function("removeFromTrees", &removeFromTrees);
-    emscripten::function("numOfTrees", &numOfTrees);
+    emscripten::function("numOfTrees", static_cast<int(*)()>([](){ return (int)trees.size(); })); // i did this because it makes me chuckle
+    emscripten::function("removeTree", &removeTree);
+    // TODO: add the corgis random dataset
 
     // i removed any exporting of objects, decided that all the objects will be managed in cpp
     // we will only export functions that will be called on button presses if that makes sense
