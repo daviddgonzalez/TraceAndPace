@@ -11,10 +11,10 @@
 std::vector<BaseTree<std::string>*> trees;
 
 
-
 void addTree() {
     trees.push_back(new AVLTree<std::string>);
 }
+
 void insertToTrees(int number) {
     if (trees.empty())
         return;
@@ -23,15 +23,19 @@ void insertToTrees(int number) {
     threads.reserve(trees.size());
     std::barrier barrier(trees.size());
 
-    for (BaseTree<std::string>* tree : trees)
-        threads.emplace_back([tree, &number, &barrier]() {
+    for (int i = 0; i < trees.size(); i++) {
+        BaseTree<std::string>* tree = trees.at(i);
+        threads.emplace_back([tree, i, &number, &barrier]() {
             barrier.arrive_and_wait();
             tree->insert(number, std::to_string(number));
+            tree->treeToJsonFile("Tree" + std::to_string(i));
         });
+    }
 
     for (std::thread& thread : threads)
         thread.join();
 }
+
 bool removeFromTrees(int number) {
     if (trees.empty())
         return true;
@@ -42,19 +46,23 @@ bool removeFromTrees(int number) {
     threads.reserve(trees.size());
     std::barrier barrier(trees.size());
 
-    for (BaseTree<std::string>* tree : trees)
-        threads.emplace_back([tree, &barrier, &number, &out]() {
+    for (int i = 0; i < trees.size(); i++) {
+        BaseTree<std::string>* tree = trees.at(i);
+        threads.emplace_back([tree, i, &barrier, &number, &out]() {
             // copying the pointer but the rest should be by reference
             barrier.arrive_and_wait();
             if (!tree->remove(number))
                 out = false;
+            tree->treeToJsonFile("Tree" + std::to_string(i));
         });
+    }
 
     for (std::thread& thread : threads)
         thread.join();
 
     return out;
 }
+
 bool findInTrees(int number) {
     if (trees.empty())
         return true;
@@ -65,16 +73,20 @@ bool findInTrees(int number) {
     threads.reserve(trees.size());
     std::barrier barrier(trees.size());
 
-    for (BaseTree<std::string>* tree : trees)
-        threads.emplace_back([tree, &out, &number, &barrier]() {
+    for (int i = 0; i < trees.size(); i++) {
+        BaseTree<std::string>* tree = trees.at(i);
+        threads.emplace_back([tree, i, &out, &number, &barrier]() {
             barrier.arrive_and_wait();
 
             if (std::to_string(number) != tree->find(number))
                 out = false;
+            tree->treeToJsonFile("Tree" + std::to_string(i));
         });
+    }
     return out;
 }
+
 void removeTree(int index) {
     delete trees.at(index);
-    trees.erase(trees.begin()+index);
+    trees.erase(trees.begin() + index);
 }

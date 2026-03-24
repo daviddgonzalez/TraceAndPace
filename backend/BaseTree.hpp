@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <utility>
-#include <stdexcept>
 #include "json.hpp" //used from https://github.com/nlohmann/json
 #include <fstream>
 using json = nlohmann::json;
@@ -53,23 +52,23 @@ public:
     virtual int height() { return root ? root->height : 0; }
 
 
-    std::string treeToJsonToString() {
+    std::string treeToJsonString() {
         json jsonOfTree = nodetoMiniJson(root);
 
-        return(jsonOfTree.dump(2)); //I read the docs, this just adds 2 spaces to make it more readable, change if you need to
+        return (jsonOfTree.dump(2));
+        //I read the docs, this just adds 2 spaces to make it more readable, change if you need to
     }
 
-    bool treeToJsonToFile() {
-        std::string stringOfJsonOfTree = treeToJsonToString(root);
+    bool treeToJsonFile(const std::string& filename) {
+        std::string stringOfJsonOfTree = treeToJsonString();
 
-        std::ofstream writeToJsonFile(filename); //INSERT FILE NAME HERE WHEN WE DECIDE WHERE TO PUT
+        std::ofstream writeToJsonFile("../frontend/src/assets/" + filename);
         if (writeToJsonFile.is_open()) {
-            writeToJsonFile<<stringOfJsonOfTree;
+            writeToJsonFile << stringOfJsonOfTree;
             writeToJsonFile.close();
             return true;
         }
         return false;
-
     }
 
 protected:
@@ -117,11 +116,9 @@ private:
     }
 
     json nodetoMiniJson(Node* recursiveNode) {
-
         if (recursiveNode == nullptr) {
             return nullptr; //Don't worry this is converted by json library to a json null I think
         }
-
 
         json miniJson;
 
@@ -129,16 +126,15 @@ private:
         miniJson["values"] = json::array(); //Literally is the equivalent of std::vector for json library btw
 
         for (const auto& keyAndTemplateVal : recursiveNode->values) {
-            miniJson["values"].push_back({"key", keyAndTemplateVal.first}, {"value", keyAndTemplateVal.second});
-
+            miniJson["values"].push_back({{"key", keyAndTemplateVal.first}, {"value", keyAndTemplateVal.second}});
         }
 
         miniJson["children"] = json::array();
-        for (Node* childrenNode: recursiveNode->childrenNodes) {
+        for (Node* childrenNode : recursiveNode->childrenNodes) {
             if (childrenNode != nullptr) {
                 miniJson["children"].push_back(nodetoMiniJson(childrenNode));
             }
         }
+        return miniJson;
     }
-
 };
