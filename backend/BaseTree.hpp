@@ -139,15 +139,6 @@ private:
                 miniJson["children"].push_back(nodetoMiniJson(childrenNode));
             }
         }
-
-
-
-
-
-
-
-
-
     }
 
 };
