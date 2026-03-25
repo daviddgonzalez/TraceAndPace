@@ -17,6 +17,7 @@ interface EmbindModule {
   addTree(): void;
   insertToTrees(_0: number): void;
   removeFromTrees(_0: number): boolean;
+  findInTrees(_0: number): boolean;
   numOfTrees(): number;
   removeTree(_0: number): void;
 }

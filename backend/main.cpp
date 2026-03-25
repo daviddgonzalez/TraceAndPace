@@ -18,11 +18,15 @@ std::string helloWorld() {
 EMSCRIPTEN_BINDINGS(testing_module) {
     emscripten::function("helloWorld", &helloWorld);
 
+    // tree functions
     emscripten::function("addTree", &addTree);
     emscripten::function("insertToTrees", &insertToTrees);
     emscripten::function("removeFromTrees", &removeFromTrees);
+    emscripten::function("findInTrees", &findInTrees);
     emscripten::function("numOfTrees", static_cast<int(*)()>([](){ return (int)trees.size(); })); // i did this because it makes me chuckle
     emscripten::function("removeTree", &removeTree);
+
+    emscripten::function("treeToJsonString", &treeTo)
     // TODO: add the corgis random dataset
 
     // i removed any exporting of objects, decided that all the objects will be managed in cpp
