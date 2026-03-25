@@ -69,7 +69,7 @@ function BulkInput(props: props) {
               <p>
                 Below insert commands in the format of:
                 <br />
-                {"<command> <number>"}
+                {"<command> <integer>"}
                 <br />
                 <br />
                 Each command on a new line with space between command and

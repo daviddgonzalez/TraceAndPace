@@ -25,6 +25,7 @@ function App() {
   // interestingly this also allows for scientific notation, thats some pretty nifty validation that we got for free
   const [insertInput, setInsertInput] = useState<string>("");
   const [removeInput, setRemoveInput] = useState<string>("");
+  const [findInput, setFindInput] = useState<string>("");
   // this is a dumb way to update the visualization right now.
   // TODO: remove this once a real rerender function is made
   // for each option in the dropdown we need to switchout updating this number for calling the future rerender function
@@ -137,6 +138,7 @@ function App() {
             <input
               className="form-control me-2"
               type="number"
+              step="1"
               placeholder="Insert Element"
               aria-label="Search"
               value={insertInput}
@@ -163,6 +165,7 @@ function App() {
             <input
               className="form-control me-2"
               type="number"
+              step="1"
               placeholder="Remove Element"
               aria-label="Search"
               value={removeInput}
@@ -172,9 +175,36 @@ function App() {
               Remove
             </button>
           </form>
+          <form
+            className="d-flex"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const num = parseInt(findInput, 10);
+              if (!isNaN(num)) {
+                wasm.findInTrees(num);
+                setFindInput("");
+              }
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            <input
+              className="form-control me-2"
+              type="number"
+              step="1"
+              placeholder="Find Element"
+              aria-label="Search"
+              value={findInput}
+              onChange={(e) => setFindInput(e.target.value)}
+            />
+            <button className="btn btn-outline-primary" type="submit">
+              Find
+            </button>
+          </form>
         </div>
       </nav>
-
+      {/* TODO: once we have proper visualization, use that here instead.
+          Ideally we have the visualizations in a flexbox so they fit nicely on the screen */}
       <div className="container">
         {Array.from({ length: wasm.numOfTrees() }).map((_, i) => (
           <Visualization key={i} />
