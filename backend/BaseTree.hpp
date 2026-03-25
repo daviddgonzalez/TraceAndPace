@@ -108,6 +108,7 @@ protected:
 
         Node *parent = nullptr;
         int height = 0;
+        int subTreeSize = 0;
 
         Node() = default; // michael please dont change it messes with BTree
 

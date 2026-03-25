@@ -256,9 +256,11 @@ protected:
         return out;
     }
     // will start at the passed node and work its way up the tree updating heights
+    // now also updates the number of children too(in a similar way)
     void updateHeight(Node* start) {
         while (start) {
             start->height = std::max(start->childrenNodes[0] ? start->childrenNodes[0]->height : 0, start->childrenNodes[1] ? start->childrenNodes[1]->height : 0) + 1;
+            start->subTreeSize = (start->childrenNodes[0] ? start->childrenNodes[0]->subTreeSize : 0) + (start->childrenNodes[1] ? start->childrenNodes[1]->subTreeSize : 0) + 1;
             start = start->parent;
         }
     }
