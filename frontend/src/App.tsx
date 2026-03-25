@@ -6,6 +6,7 @@ import { use, useState } from "react";
 import WasmFactory from "./wasm/TraceAndPace.mjs";
 import type { MainModule } from "./wasm/TraceAndPace.d.mts";
 import Visualization from "./Visualization";
+import BulkInput from "./BulkInput";
 
 const initializeWasm = async (): Promise<MainModule> => {
   return await WasmFactory();
@@ -95,6 +96,18 @@ function App() {
                   </li>
                 </ul>
               </li>
+              {/* This is the button for opening the bulk input popup */}
+              <li>
+                <button
+                  className="btn btn-outline-primary"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#bulkInputTextBox"
+                  style={{ marginLeft: "10px" }}
+                >
+                  Bulk Input
+                </button>
+              </li>
             </ul>
           </div>
           {/* This is that little input bar for inserting numbers */}
@@ -118,7 +131,7 @@ function App() {
               value={insertInput}
               onChange={(e) => setInsertInput(e.target.value)}
             />
-            <button className="btn btn-outline-success" type="submit">
+            <button className="btn btn-outline-primary" type="submit">
               Insert
             </button>
           </form>
@@ -144,7 +157,7 @@ function App() {
               value={removeInput}
               onChange={(e) => setRemoveInput(e.target.value)}
             />
-            <button className="btn btn-outline-success" type="submit">
+            <button className="btn btn-outline-primary" type="submit">
               Remove
             </button>
           </form>
@@ -156,6 +169,7 @@ function App() {
         {Array.from({ length: wasm.numOfTrees() }).map((_, i) => (
           <Visualization key={i} />
         ))}
+        <BulkInput wasm={wasm} />
       </div>
     </>
   );
