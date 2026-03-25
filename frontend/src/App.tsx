@@ -25,6 +25,10 @@ function App() {
   // interestingly this also allows for scientific notation, thats some pretty nifty validation that we got for free
   const [insertInput, setInsertInput] = useState<string>("");
   const [removeInput, setRemoveInput] = useState<string>("");
+  // this is a dumb way to update the visualization right now.
+  // TODO: remove this once a real rerender function is made
+  // for each option in the dropdown we need to switchout updating this number for calling the future rerender function
+  const [treeCount, setTreeCount] = useState<number>(wasm.numOfTrees());
 
   return (
     <>
@@ -62,25 +66,10 @@ function App() {
                     <button
                       className="dropdown-item"
                       type="button"
-                      onClick={() => wasm.addTree()}
-                    >
-                      B Tree
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      type="button"
-                      onClick={() => wasm.addTree()}
-                    >
-                      B+ Tree
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      type="button"
-                      onClick={() => wasm.addTree()}
+                      onClick={() => {
+                        wasm.addAVLTree();
+                        setTreeCount(wasm.numOfTrees());
+                      }}
                     >
                       AVL Tree
                     </button>
@@ -89,7 +78,29 @@ function App() {
                     <button
                       className="dropdown-item"
                       type="button"
-                      onClick={() => wasm.addTree()}
+                      onClick={() => {
+                        wasm.addBTree();
+                        setTreeCount(wasm.numOfTrees());
+                      }}
+                    >
+                      B Tree
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item disabled"
+                      type="button"
+                      onClick={() => wasm.addAVLTree()}
+                    >
+                      B+ Tree
+                    </button>
+                  </li>
+
+                  <li>
+                    <button
+                      className="dropdown-item disabled"
+                      type="button"
+                      onClick={() => wasm.addAVLTree()}
                     >
                       Splay
                     </button>
@@ -165,7 +176,6 @@ function App() {
       </nav>
 
       <div className="container">
-        {/* DAVID! fix this. currently this doesnt get prompted for a rerender when one of the buttons are pressed. This means that the new visualization insnt shown until after you modify something else. */}
         {Array.from({ length: wasm.numOfTrees() }).map((_, i) => (
           <Visualization key={i} />
         ))}

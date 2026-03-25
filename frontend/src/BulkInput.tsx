@@ -9,15 +9,46 @@ interface props {
 function BulkInput(props: props) {
   const wasm = props.wasm;
 
-  const handleABulkInput = (input: string) => {
-    const lines = input.split("\n");
-    for (let line of lines) {
-      const command = line.split(" ");
-      for (let i = 0; i < wasm.numOfTrees(); i++) {
-        wasm.executeOneAction(command[0], i, parseInt(command[1]));
+  // this function needs to be called for each tree
+  const raceTree = (
+    treeIndex: number,
+    commands: string[][],
+    delay: number,
+  ): void => {
+    let step = 0;
+
+    // definition of a recirsive function that delays its future call by a set time
+    const runSingleCommand = () => {
+      if (step >= commands.length) {
+        return; // base case where we are done
       }
+
+      wasm.executeOneAction(
+        commands[step][0],
+        treeIndex,
+        parseInt(commands[step][1]),
+      );
+      // TODO: include rerender function call here
+      step++;
+      setTimeout(runSingleCommand, delay);
+    };
+
+    runSingleCommand();
+  };
+
+  const handleABulkInput = (input: string) => {
+    const timeVector = wasm.runBulkCommands(input);
+
+    // this turns the input string into an array of arrays of strings
+    let commands = input.split("\n").map((line) => {
+      return line.split(" ");
+    });
+
+    for (let i = 0; i < timeVector.size(); i++) {
+      raceTree(i, commands, Number(timeVector.get(i)));
     }
   };
+
   const textArea = useRef<HTMLTextAreaElement>(null);
   return (
     <>
@@ -35,6 +66,16 @@ function BulkInput(props: props) {
               ></button>
             </div>
             <div className="modal-body">
+              <p>
+                Below insert commands in the format of:
+                <br />
+                {"<command> <number>"}
+                <br />
+                <br />
+                Each command on a new line with space between command and
+                number.
+                <br /> Acceptable commands are: "insert", "remove", and "find".
+              </p>
               <div className="form-floating">
                 <textarea
                   className="form-control"

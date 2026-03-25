@@ -7,13 +7,17 @@
 
 #include "AVLTree.hpp"
 #include "BaseTree.hpp"
+#include "BTree.hpp"
 
 
 std::vector<BaseTree<std::string>*> trees;
 
 
-void addTree() {
+void addAVLTree() {
     trees.push_back(new AVLTree<std::string>);
+}
+void addBTree() {
+    trees.push_back(new VisualBTree<std::string>);
 }
 
 void insertToTrees(int number) {
@@ -101,25 +105,48 @@ void executeOneAction(std::string action, int treeIndex, int input) {
         trees.at(treeIndex)->find(input);
 }
 
-std::vector<std::chrono::microseconds> runBulkCommands(std::vector<std::vector<std::string>> input) {
+std::vector<double> runBulkCommands(std::string inputString) {
+    std::vector<std::vector<std::string>> input;
+
+    std::istringstream stringStream(inputString);
+    std::string line;
+    while (std::getline(stringStream, line)) {
+        std::istringstream lineStream(line);
+        std::string command, value;
+        lineStream >> command >> value;
+        input.emplace_back(std::vector{command,value});
+    }
+
     std::vector<std::thread> threads;
     threads.reserve(trees.size());
     std::barrier barrier(trees.size());
 
-    std::vector<std::chrono::microseconds> out(trees.size());
+    std::vector<double> out(trees.size());
+    std::vector<long long> times(trees.size());
 
     for (int i = 0; i < trees.size(); i ++) {
-        threads.emplace_back([i, &out, &barrier, &input]() {
+        threads.emplace_back([i, &times, &barrier, &input]() {
             barrier.arrive_and_wait();
 
             auto start = std::chrono::high_resolution_clock::now();
 
             for (std::vector<std::string> command : input)
-                executeOneAction(command[0], i, std::stoi(command[0]));
+                executeOneAction(command[0], i, std::stoi(command[1]));
 
             auto end = std::chrono::high_resolution_clock::now();
 
-            out.at(i) = (start - end); // todo: in the middle of timing everything to then send these numbers back to js to make the fake race for
+            times.at(i) = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
         });
     }
+
+    for (std::thread& thread :threads)
+        thread.join();
+
+    long long minTime = *std::ranges::min_element(times);
+    double oneFrame = 1/60.0;
+
+    for (int i = 0; i < times.size(); i++)
+        out.at(i) = static_cast<double>(times.at(i))/minTime * oneFrame;
+
+    return out;
 }

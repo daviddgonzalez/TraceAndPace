@@ -13,15 +13,37 @@ interface WasmModule {
 }
 
 type EmbindString = ArrayBuffer|Uint8Array|Uint8ClampedArray|Int8Array|string;
+export interface ClassHandle {
+  isAliasOf(other: ClassHandle): boolean;
+  delete(): void;
+  deleteLater(): this;
+  isDeleted(): boolean;
+  // @ts-ignore - If targeting lower than ESNext, this symbol might not exist.
+  [Symbol.dispose](): void;
+  clone(): this;
+}
+export interface doubleVector extends ClassHandle, Iterable<number> {
+  push_back(_0: number): void;
+  resize(_0: number, _1: number): void;
+  size(): number;
+  get(_0: number): number | undefined;
+  set(_0: number, _1: number): boolean;
+}
+
 interface EmbindModule {
   helloWorld(): string;
-  addTree(): void;
+  addAVLTree(): void;
+  addBTree(): void;
   insertToTrees(_0: number): void;
   removeFromTrees(_0: number): boolean;
   findInTrees(_0: number): boolean;
   numOfTrees(): number;
   removeTree(_0: number): void;
   executeOneAction(_0: EmbindString, _1: number, _2: number): void;
+  doubleVector: {
+    new(): doubleVector;
+  };
+  runBulkCommands(_0: EmbindString): doubleVector;
 }
 
 export type MainModule = WasmModule & typeof RuntimeExports & EmbindModule;
