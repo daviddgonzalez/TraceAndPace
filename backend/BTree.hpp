@@ -105,8 +105,6 @@ public:
     }
 
 
-
-
     bool remove(int k) override {
         std::pair<bool, typename BaseTree<T>::Node *> targetNodePair = search(k);
         if (targetNodePair.first == false) {
