@@ -88,6 +88,8 @@ public:
 
             this->root = new typename BaseTree<T>::Node();
             this->root->values.push_back({k, value});
+            this->root->subTreeSize = 1;
+
             return true;
         }
 
@@ -95,6 +97,14 @@ public:
         int insertInd = nodeSearch.second;
 
         current->values.insert(current->values.begin() + insertInd, {k, value});
+        current->subTreeSize++;
+
+        typename BaseTree<T>::Node* incParents = current->parent;
+
+        while(incParents!=nullptr){
+            incParents->subTreeSize++;
+            incParents = incParents->parent;
+        }
 
         // if the node has too many keys we need to split it
         if (current->values.size() > nodeKeys){
@@ -137,15 +147,24 @@ public:
 
         }
 
+        typename BaseTree<T>::Node* incParents = targetNode->parent;
+
+        while(incParents!=nullptr){
+            incParents->subTreeSize--;
+            incParents = incParents->parent;
+        }
+
         //I made it so by the time it gets here its ALWAYS gonna be a leaf node ITS SO PEAK
             //here's leaf node cases
             if (targetNode->values.size() > minKeys) {
                 targetNode->values.erase(targetNode->values.begin() + targetPos);
+                targetNode->subTreeSize--;
                 return true;
             }
             else {
                 if (targetNode == this->root) {
                     targetNode->values.erase(targetNode->values.begin() + targetPos);
+                    targetNode->subTreeSize--;
                     if (targetNode->values.size() == 0) {
                         delete targetNode;
                         this->root = nullptr;
@@ -160,14 +179,20 @@ public:
                     }
                 }
                 if (targetNodeInd>0 && parentNode->childrenNodes[targetNodeInd-1]->values.size() > minKeys) {
+                    
+                    
                     typename BaseTree<T>::Node* leftNode = parentNode->childrenNodes[targetNodeInd-1];
                     targetNode->values.erase(targetNode->values.begin() + targetPos); //I messed up before by just trying to swap, you HAVE to preserve sorted order
                     targetNode->values.insert(targetNode->values.begin(), parentNode->values[targetNodeInd-1]);
                     parentNode->values[targetNodeInd-1] = leftNode->values.back();
+                    
                     leftNode->values.pop_back();
+                    leftNode->subTreeSize--;
                     return true;
+
                 }
                 else if (targetNodeInd < parentNode->childrenNodes.size()-1 && parentNode->childrenNodes[targetNodeInd+1]->values.size() > minKeys) {
+                    
                     typename BaseTree<T>::Node* rightNode = parentNode->childrenNodes[targetNodeInd+1];
                     targetNode->values.erase(targetNode->values.begin() + targetPos); //same here as with borrowing from left case
                     targetNode->values.push_back(parentNode->values[targetNodeInd]);
@@ -175,31 +200,45 @@ public:
                     parentNode->values[targetNodeInd] = rightNode->values.front();
                     rightNode->values.erase(rightNode->values.begin());
 
+                    rightNode->subTreeSize--;
+
                     return true;
                 }
                 else {
+                    
                     if (targetNodeInd == parentNode->childrenNodes.size()-1) { //no right child, we have to do left child merge
                         typename BaseTree<T>::Node* leftNode = parentNode->childrenNodes[targetNodeInd-1];
                         leftNode->values.push_back(parentNode->values[targetNodeInd-1]);
                         targetNode->values.erase(targetNode->values.begin() + targetPos); //Lets delete target before copying so we dont have to worry about index shifting.
+                        
                         for (int f = 0; f<targetNode->values.size();++f) {
                             leftNode->values.push_back(targetNode->values[f]);
                         }
+
                         delete targetNode;
+
+                        leftNode->subTreeSize = leftNode->values.size();
                         parentNode->values.erase(parentNode->values.begin() + targetNodeInd-1);
                         parentNode->childrenNodes.erase(parentNode->childrenNodes.begin() + targetNodeInd);
                     }
+                   
                     else {
                         typename BaseTree<T>::Node* rightNode = parentNode->childrenNodes[targetNodeInd+1];
                         targetNode->values.push_back(parentNode->values[targetNodeInd]);
+                        
                         for (int u = 0; u<rightNode->values.size();++u) {
                             targetNode->values.push_back(rightNode->values[u]);
+                       
                         }
+
                         delete rightNode;
                         rightNode = nullptr; //Just to be redundant
+
                         parentNode->values.erase(parentNode->values.begin() + targetNodeInd);
                         parentNode->childrenNodes.erase(parentNode->childrenNodes.begin() + targetNodeInd + 1);
+                        
                         targetNode->values.erase(targetNode->values.begin() + targetPos); //We didnt shift target pos cuz we added to the end
+                        targetNode->subTreeSize = targetNode -> values.size();
 
                     }
 
@@ -283,6 +322,18 @@ private:
             }
         }
 
+        node->subTreeSize = node->values.size();
+
+        for(typename BaseTree<T>::Node* child: node->childrenNodes){
+            node->subTreeSize += child->subTreeSize;
+        }
+
+        rightNode->subTreeSize = rightNode->values.size();
+
+        for(typename BaseTree<T>::Node* child: rightNode->childrenNodes){
+            rightNode->subTreeSize += child->subTreeSize;
+        }
+
         // I'm using the recursive calls to repeatedly raise the key/value pair
 
         if (node->parent == nullptr){                                                                           // we have to make a new root
@@ -291,6 +342,7 @@ private:
             jesus->values.push_back(middlePair);
             jesus->childrenNodes.push_back(node);
             jesus->childrenNodes.push_back(rightNode);
+            jesus->subTreeSize = 1 + node->subTreeSize + rightNode->subTreeSize;
 
             node->parent = jesus;
             rightNode->parent = jesus;
@@ -355,6 +407,19 @@ private:
                 rightNode->childrenNodes.erase(rightNode->childrenNodes.begin());
             }
 
+            targetNode->subTreeSize = targetNode->values.size();
+
+            for(typename BaseTree<T>::Node* childNode: targetNode->childrenNodes){
+                targetNode->subTreeSize += childNode->subTreeSize;
+            }
+
+
+            rightNode->subTreeSize = rightNode->values.size();
+
+            for(typename BaseTree<T>::Node* childNode: rightNode->childrenNodes){
+                 rightNode->subTreeSize+= childNode->subTreeSize;
+            }
+
             return;
         }
         if (targetNodeInd>0 && parentNode->childrenNodes[targetNodeInd-1]->values.size() > minKeys) {
@@ -371,6 +436,20 @@ private:
                 leftNode->childrenNodes.pop_back();
             }
 
+            targetNode->subTreeSize = targetNode->values.size();
+
+            for(typename BaseTree<T>::Node* childNode: targetNode->childrenNodes){
+                targetNode->subTreeSize += childNode->subTreeSize;
+            }
+
+            
+            leftNode->subTreeSize = leftNode->values.size();
+
+            for(typename BaseTree<T>::Node* childNode: leftNode->childrenNodes){
+                 leftNode->subTreeSize+= childNode->subTreeSize;
+            }
+
+
             return;
         }
         else {
@@ -384,7 +463,16 @@ private:
                     leftNode->childrenNodes.push_back(targetNode->childrenNodes[g]);
                     targetNode->childrenNodes[g]->parent = leftNode;
                 }
+                leftNode -> subTreeSize = leftNode-> values.size();
                 delete targetNode;
+
+                leftNode->subTreeSize = leftNode->values.size();
+
+                for(typename BaseTree<T>::Node* leftMerge: leftNode->childrenNodes){
+                    leftNode->subTreeSize += leftMerge->subTreeSize;
+                }
+
+
                 parentNode->values.erase(parentNode->values.begin() + targetNodeInd-1);
                 parentNode->childrenNodes.erase(parentNode->childrenNodes.begin() + targetNodeInd);
             }
@@ -400,6 +488,14 @@ private:
                 }
                 delete rightNode;
                 rightNode = nullptr; //Just to be redundant
+
+                targetNode->subTreeSize = targetNode->values.size();
+
+                for(typename BaseTree<T>::Node* rightMerge: targetNode->childrenNodes){
+                    targetNode->subTreeSize += rightMerge->subTreeSize;
+                }
+
+
                 parentNode->values.erase(parentNode->values.begin() + targetNodeInd);
                 parentNode->childrenNodes.erase(parentNode->childrenNodes.begin() + targetNodeInd + 1);
 
