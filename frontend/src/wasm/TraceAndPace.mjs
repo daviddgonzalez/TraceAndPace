@@ -5732,122 +5732,6 @@ var stringToUTF8Array = (str, heap, outIdx, maxBytesToWrite) => {
       }
     };
 
-  var emval_methodCallers = [];
-  var emval_addMethodCaller = (caller) => {
-      var id = emval_methodCallers.length;
-      emval_methodCallers.push(caller);
-      return id;
-    };
-  
-  
-  
-  var requireRegisteredType = (rawType, humanName) => {
-      var impl = registeredTypes[rawType];
-      if (undefined === impl) {
-        throwBindingError(`${humanName} has unknown type ${getTypeName(rawType)}`);
-      }
-      return impl;
-    };
-  var emval_lookupTypes = (argCount, argTypes) => {
-      var a = new Array(argCount);
-      for (var i = 0; i < argCount; ++i) {
-        a[i] = requireRegisteredType(HEAPU32[(((argTypes)+(i*4))>>2)],
-                                     `parameter ${i}`);
-      }
-      return a;
-    };
-  
-  
-  var emval_returnValue = (toReturnWire, destructorsRef, handle) => {
-      var destructors = [];
-      var result = toReturnWire(destructors, handle);
-      if (destructors.length) {
-        // void, primitives and any other types w/o destructors don't need to allocate a handle
-        HEAPU32[((destructorsRef)>>2)] = Emval.toHandle(destructors);
-      }
-      return result;
-    };
-  
-  
-  var emval_symbols = {
-  };
-  
-  var getStringOrSymbol = (address) => {
-      var symbol = emval_symbols[address];
-      if (symbol === undefined) {
-        return AsciiToString(address);
-      }
-      return symbol;
-    };
-  var __emval_create_invoker = (argCount, argTypesPtr, kind) => {
-      var GenericWireTypeSize = 8;
-  
-      var [retType, ...argTypes] = emval_lookupTypes(argCount, argTypesPtr);
-      var toReturnWire = retType.toWireType.bind(retType);
-      var argFromPtr = argTypes.map(type => type.readValueFromPointer.bind(type));
-      argCount--; // remove the extracted return type
-  
-      var captures = {'toValue': Emval.toValue};
-      var args = argFromPtr.map((argFromPtr, i) => {
-        var captureName = `argFromPtr${i}`;
-        captures[captureName] = argFromPtr;
-        return `${captureName}(args${i ? '+' + i * GenericWireTypeSize : ''})`;
-      });
-      var functionBody;
-      switch (kind){
-        case 0:
-          functionBody = 'toValue(handle)';
-          break;
-        case 2:
-          functionBody = 'new (toValue(handle))';
-          break;
-        case 3:
-          functionBody = '';
-          break;
-        case 1:
-          captures['getStringOrSymbol'] = getStringOrSymbol;
-          functionBody = 'toValue(handle)[getStringOrSymbol(methodName)]';
-          break;
-      }
-      functionBody += `(${args})`;
-      if (!retType.isVoid) {
-        captures['toReturnWire'] = toReturnWire;
-        captures['emval_returnValue'] = emval_returnValue;
-        functionBody = `return emval_returnValue(toReturnWire, destructorsRef, ${functionBody})`;
-      }
-      functionBody = `return function (handle, methodName, destructorsRef, args) {
-${functionBody}
-}`;
-  
-      var invokerFunction = new Function(Object.keys(captures), functionBody)(...Object.values(captures));
-      var functionName = `methodCaller<(${argTypes.map(t => t.name)}) => ${retType.name}>`;
-      return emval_addMethodCaller(createNamedFunction(functionName, invokerFunction));
-    };
-
-
-  
-  
-  var __emval_invoke = (caller, handle, methodName, destructorsRef, args) => {
-      return emval_methodCallers[caller](handle, methodName, destructorsRef, args);
-    };
-
-  var __emval_new_array = () => Emval.toHandle([]);
-
-  
-  
-  var __emval_run_destructors = (handle) => {
-      var destructors = Emval.toValue(handle);
-      runDestructors(destructors);
-      __emval_decref(handle);
-    };
-
-  var __emval_set_property = (handle, key, value) => {
-      handle = Emval.toValue(handle);
-      key = Emval.toValue(key);
-      value = Emval.toValue(value);
-      handle[key] = value;
-    };
-
   
   var __tzset_js = (timezone, daylight, std_name, dst_name) => {
       // TODO: Use (malleable) environment variables instead of system settings.
@@ -6394,6 +6278,7 @@ if (Module['wasmBinary']) wasmBinary = Module['wasmBinary'];
   'stackTrace',
   'getNativeTypeSize',
   'getFunctionArgsName',
+  'requireRegisteredType',
   'createJsInvokerSignature',
   'getEnumValueType',
   'PureVirtualError',
@@ -6430,6 +6315,10 @@ if (Module['wasmBinary']) wasmBinary = Module['wasmBinary'];
   'char_9',
   'makeLegalFunctionName',
   'count_emval_handles',
+  'getStringOrSymbol',
+  'emval_returnValue',
+  'emval_lookupTypes',
+  'emval_addMethodCaller',
 ];
 missingLibrarySymbols.forEach(missingLibrarySymbol)
 
@@ -6695,7 +6584,6 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'getTypeName',
   'getFunctionName',
   'heap32VectorToArray',
-  'requireRegisteredType',
   'usesDestructorStack',
   'checkArgCount',
   'getRequiredArgCount',
@@ -6725,12 +6613,8 @@ missingLibrarySymbols.forEach(missingLibrarySymbol)
   'emval_freelist',
   'emval_handles',
   'emval_symbols',
-  'getStringOrSymbol',
   'Emval',
-  'emval_returnValue',
-  'emval_lookupTypes',
   'emval_methodCallers',
-  'emval_addMethodCaller',
 ];
 unexportedSymbols.forEach(unexportedRuntimeSymbol);
 
@@ -6899,18 +6783,6 @@ function assignWasmExports(wasmExports) {
     _emscripten_thread_mailbox_await: __emscripten_thread_mailbox_await,
     /** @export */
     _emscripten_thread_set_strongref: __emscripten_thread_set_strongref,
-    /** @export */
-    _emval_create_invoker: __emval_create_invoker,
-    /** @export */
-    _emval_decref: __emval_decref,
-    /** @export */
-    _emval_invoke: __emval_invoke,
-    /** @export */
-    _emval_new_array: __emval_new_array,
-    /** @export */
-    _emval_run_destructors: __emval_run_destructors,
-    /** @export */
-    _emval_set_property: __emval_set_property,
     /** @export */
     _tzset_js: __tzset_js,
     /** @export */

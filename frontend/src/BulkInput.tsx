@@ -10,24 +10,13 @@ function BulkInput(props: props) {
   const wasm = props.wasm;
 
   const handleABulkInput = (input: string) => {
-    // we handle this in two parts, first we have the cpp code simulate it and time it.
-    // Then we go and update all the trees slowly for the visualization.
-    // TODO: make the bulk input function for cpp and pass input to it
-    // the below code cant work as of now... we need to think of a new way to do this
-    // const lines = input.split("\n");
-    // for (const line of lines) {
-    //   const parts = line.split(" ");
-    //   const command = parts[0];
-    //   const value = parseInt(parts[1], 10);
-    //   if (command === "insert") {
-    //     wasm.insertToTrees(value);
-    //   } else if (command === "remove") {
-    //     wasm.removeFromTrees(value);
-    //   } else if (command === "find") {
-    //     wasm.findInTrees(value);
-    //   }
-    //   const json = wasm.treeToJsonString();
-    // }
+    const lines = input.split("\n");
+    for (let line of lines) {
+      const command = line.split(" ");
+      for (let i = 0; i < wasm.numOfTrees(); i++) {
+        wasm.executeOneAction(command[0], i, parseInt(command[1]));
+      }
+    }
   };
   const textArea = useRef<HTMLTextAreaElement>(null);
   return (

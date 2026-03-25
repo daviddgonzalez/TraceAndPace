@@ -7,6 +7,8 @@
 #include <string>
 #include <cmath>
 
+#include "InceptaTree.hpp"
+
 using json = nlohmann::json;
 
 template <typename T>
@@ -77,9 +79,9 @@ public:
         return inceptaTreeHelper(root, 0, limitOfDisplayedNodes);
     }
 
-    InceptaTree<T> createInceptaSubTree(Node* subRoot, int currDepth, int limitOfDisplayedNodes) {
-        return inceptaTreeHelper(subRoot, currDepth, limitOfDisplayedNodes);
-    }
+    // InceptaTree<T> createInceptaSubTree(Node* subRoot, int currDepth, int limitOfDisplayedNodes) {
+    //     return inceptaTreeHelper(subRoot, currDepth, limitOfDisplayedNodes);
+    // }
 
 protected:
     bool successfulSearch = false;
@@ -149,18 +151,18 @@ private:
         return miniJson;
     }
 
-    InceptaTree<T> inceptaTreeHelper(Node* subTreeRoot = this->root, int currDepth = 0,
-                                     int limitOfDisplayedNodes = 50) {
-        std::vector<InceptaNode<T>> visibleNodes;
-        int totalNodes = traverseAndCount(subTreeRoot);
-        int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
-
-        int numOfDisplayedNodes = 0;
-
-        InceptaNode<T> displayRoot(subTreeRoot->values[0].first, depth, totalNodes, h)
-
-        for (Node* c : subTreeRoot->childrenNodes) {}
-    }
+    // InceptaTree<T> inceptaTreeHelper(Node* subTreeRoot = this->root, int currDepth = 0,
+    //                                  int limitOfDisplayedNodes = 50) {
+    //     std::vector<InceptaNode<T>> visibleNodes;
+    //     int totalNodes = traverseAndCount(subTreeRoot);
+    //     int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
+    //
+    //     int numOfDisplayedNodes = 0;
+    //
+    //     InceptaNode<T> displayRoot(subTreeRoot->values[0].first, depth, totalNodes, h);
+    //
+    //     for (Node* c : subTreeRoot->childrenNodes) {}
+    // }
 
     int traverseAndCount(Node* subtreeRoot) {
         if (subtreeRoot == nullptr) {

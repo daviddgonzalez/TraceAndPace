@@ -26,7 +26,7 @@ EMSCRIPTEN_BINDINGS(testing_module) {
     emscripten::function("numOfTrees", static_cast<int(*)()>([](){ return (int)trees.size(); })); // i did this because it makes me chuckle
     emscripten::function("removeTree", &removeTree);
 
-    emscripten::function("treeToJsonString", &treeTo)
+    emscripten::function("executeOneAction", &executeOneAction);
     // TODO: add the corgis random dataset
 
     // i removed any exporting of objects, decided that all the objects will be managed in cpp

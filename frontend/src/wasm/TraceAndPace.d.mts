@@ -21,11 +21,7 @@ interface EmbindModule {
   findInTrees(_0: number): boolean;
   numOfTrees(): number;
   removeTree(_0: number): void;
-  getTreeJson(_0: number): string;
-  insertToTree(_0: number, _1: number): boolean;
-  removeFromTree(_0: number, _1: number): boolean;
-  findInTree(_0: number, _1: number): boolean;
-  simulateBulkRace(_0: EmbindString): any;
+  executeOneAction(_0: EmbindString, _1: number, _2: number): void;
 }
 
 export type MainModule = WasmModule & typeof RuntimeExports & EmbindModule;
