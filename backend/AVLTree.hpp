@@ -45,87 +45,17 @@ public:
         return true;
     }
 
-    // removal logic, there is no balancing after removal, just bst removal
-    bool remove(int id) override {
-        Node* node = findNode(id);
-        Node* nodeHeightToUpdate;
-        if (node == nullptr)
-            return false;
-
-        if (node->childrenNodes[0] && node->childrenNodes[1]) {
-            // set replacement as inorder successor
-            Node* replacement = node->childrenNodes[1];
-
-            while (replacement->childrenNodes[0])
-                replacement = replacement->childrenNodes[0];
-
-            // from this guy up I need to update the height
-            nodeHeightToUpdate = replacement->parent;
-
-            if (replacement != node->childrenNodes[1]) {
-                replacement->parent->childrenNodes[0] = replacement->childrenNodes[1];
-                if (replacement->childrenNodes[1]) // before the pointer to replacement->childrenNodes[1] is changed i need to set it's new parent
-                    replacement->childrenNodes[1]->parent = replacement->parent;
-                replacement->childrenNodes[1] = node->childrenNodes[1];
-
-                if (replacement->childrenNodes[1])
-                    replacement->childrenNodes[1]->parent = replacement;
-            }else // if the above if statement is false then nodeHeightToUpdate is going to be deleted
-                nodeHeightToUpdate = replacement;
-
-            replacement->childrenNodes[0] = node->childrenNodes[0];
-            if (replacement->childrenNodes[0])
-                replacement->childrenNodes[0]->parent = replacement;
-
-            // making sure the parent has updated child
-            if (node->parent) {
-                replacement->parent = node->parent;
-                if (node->parent->childrenNodes[0] == node)
-                    node->parent->childrenNodes[0] = replacement;
-                else
-                    node->parent->childrenNodes[1] = replacement;
-            }else {
-                root = replacement;
-                replacement->parent = nullptr;
-            }
-
-            node->childrenNodes[1] = nullptr;
-            node->childrenNodes[0] = nullptr;
-            delete node;
-        }else {
-            // this is the removal case that there is 0 - 1 children
-            Node* replacement;
-            nodeHeightToUpdate = node->parent;
-
-            // only one of these is true and if neither is then this node is a leaf
-            if (node->childrenNodes[0])
-                replacement = node->childrenNodes[0];
-            else if (node->childrenNodes[1])
-                replacement = node->childrenNodes[1];
-            else
-                replacement = nullptr;
-
-            if (node->parent) {
-                if (node->parent->childrenNodes[0] == node)
-                    node->parent->childrenNodes[0] = replacement;
-                else
-                    node->parent->childrenNodes[1] = replacement;
-            }else {
-                root = replacement;
-            }
-
-            if (replacement)
-                replacement->parent = node->parent;
-
-            node->childrenNodes[0] = nullptr;
-            node->childrenNodes[1] = nullptr;
-            delete node;
+    // removal logic, I absolutely mogged michael's code
+     bool remove(int g) override{ // successful/unsuccessful
+        if(removeHelper(root, g)) {
+            return true;
         }
-        // this travels up the tree to make sure that the heights are updated correctly.
-        // This makes sure that rotations and height calls are correct
-        updateHeight(nodeHeightToUpdate);
-        return true;
+        else {
+            return false;
+        }
     }
+
+    
     T find(int id) override {
         Node* node = findNode(id);
         if (node != nullptr) {
@@ -256,12 +186,127 @@ protected:
         return out;
     }
     // will start at the passed node and work its way up the tree updating heights
-    // now also updates the number of children too(in a similar way)
     void updateHeight(Node* start) {
         while (start) {
             start->height = std::max(start->childrenNodes[0] ? start->childrenNodes[0]->height : 0, start->childrenNodes[1] ? start->childrenNodes[1]->height : 0) + 1;
-            start->subTreeSize = (start->childrenNodes[0] ? start->childrenNodes[0]->subTreeSize : 0) + (start->childrenNodes[1] ? start->childrenNodes[1]->subTreeSize : 0) + 1;
             start = start->parent;
         }
     }
+
+
+
+    //THIS IS AWESOME DAVID AVL TREE CODE
+    bool removeHelper(Node*& r, const int& g) {
+        if (r == nullptr){return false;}
+
+        bool success = false;
+        if (g < r->gatorID) {
+            success = (removeHelper(r->left,g));
+        }
+        else if (g > r->gatorID) {
+            success =(removeHelper(r->right, g));
+        }
+        else {
+            success = true;
+
+            //4 Cases when node is alr found
+            // 1. Node has no kids (easy)
+            if (r->left == nullptr && r->right == nullptr) {
+                delete r;
+                r = nullptr;
+            }
+            // 2. Node has left kid
+            else if (r->right == nullptr) {
+                Node* temp = r;
+                r = r->left; // updates parent bc we passed in by reference not value
+                delete temp; // r doesnt store actual value of r now
+            }
+
+            //3. Node has right kid
+            else if (r->left == nullptr) { //mirrored case of 2
+                Node* temp = r;
+                r = r->right;
+                delete temp;
+            }
+
+            // 4. Node has two kids (have to find the inorder succession)
+            else {
+                Node* inOrderSuccessor = r->right;
+                while (inOrderSuccessor->left) {
+                    inOrderSuccessor = inOrderSuccessor->left; //is now the left most thing on the right subtree.
+                }
+                r->gatorID = inOrderSuccessor->gatorID;
+                r->name = inOrderSuccessor->name;
+
+                removeHelper(r->right, r->gatorID); // we have to pass r->right and have it go thru the
+                // tree bc if we passed successor it would update the successor pointer and not the tree's pointer
+                //have to pass r->gatorID because inOrder is going to be deleted so it would have a dangling reference
+            }
+        }
+        if (!success || r == nullptr) {
+            return success; // return false if we didnt find node or if it was null bc we dont have to balance in these cases
+        }
+
+        r->height = 1 + std::max(heightCheck(r->left),heightCheck(r->right)); // O(log n) bc it cuts the amount of nodes it could
+        //visit in half every time it recursively calls
+
+        rotate(r);
+
+        return true;
+    }
+
+    int heightCheck(Node* r) {
+        if (r == nullptr) {
+           return 0;
+        }
+        return r->height;
+    }
+
+     void rotate(Node*& r) {
+        if (r == nullptr) {
+            return;
+        }
+        int parentBF = calcBalanceFactor(r);
+
+        if (abs(parentBF) <= 1){ //should never do this but js in case?
+            return;
+        }
+        int rightBF = calcBalanceFactor(r->right);;
+
+        int leftBF = calcBalanceFactor(r->left);
+
+        int childBF = parentBF == -2 ? rightBF : leftBF; //if tree is right heavy we care about right kid,
+                                                        // if tree is left heavy we care about left kid
+
+        if (parentBF == -2) {
+            if (childBF <=0) { //right right case
+                leftRotation(r);
+            }
+            else { //right left case
+                rightRotation(r->right);
+                leftRotation(r);
+            }
+        }
+        else {
+            if (childBF >= 0) { //left left case
+                rightRotation(r);
+            }
+            else { //left right case
+                leftRotation(r->left);
+                rightRotation(r);
+            }
+        }
+    }
+
+    int calcBalanceFactor(Node* r) {
+        if (r==nullptr) {
+            return 0;
+        }
+        int leftHeight = heightCheck(r->left);
+        int rightHeight = heightCheck(r->right);
+
+        return(leftHeight-rightHeight);
+    }
+
+
 };

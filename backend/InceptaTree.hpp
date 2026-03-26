@@ -9,26 +9,26 @@ using json = nlohmann::json;
 template <typename T>
 struct InceptaNode
 {
-    int key;
+   std::pair<int, T> firstKeyAndVal;
 
-    int zoomDepth; // how far zoomed in you are
+    int nodeDepth; // We have zoom depth on the front end and node depth
 
-    int totalNumOfChildren; // how many children the node has, present or not.
+    //zoom depth - how zoomed in the user is
+    //node depth - how many levels deep this particular node is
 
-    std::pair<int, T> sampleNodeValue;
+    int totalNumOfNodes; // how many children the node has, present or not and i added itself
 
-    std::vector<std::pair<int, T>> sampleChildValues;
     int localChildCount; // amount of children that are displayed on screen
 
-    std::string nodeType;
+    std::string treeType;
 
-    bool isItALeaf;
+    bool condensed;
 
     InceptaNode() {};
 
-    InceptaNode(int k, int d, int totalKids, std::pair<int, T> val, std::vector<std::pair<int, T>> kidVals, int localKids, std::string type, bool leaf) : key(k), zoomDepth(d), totalNumOfChildren(totalKids),
-                                                                                                                                                          sampleNodeValue(val), sampleChildValues(kidVals),
-                                                                                                                                                          localChildCount(localKids), nodeType(type), isItALeaf(leaf) {};
+    InceptaNode(std::pair<int, T> val, int d, int totalKids, int localKids, std::string type, bool condensed) : firstKeyAndVal(val), nodeDepth(d), totalNumOfNodes(totalKids),
+                                                                                                    
+                                                                                                    localChildCount(localKids), treeType(type), condensed(condensed) {};
 };
 
 template <typename T>
@@ -39,12 +39,12 @@ struct InceptaTree
 
     int totalNodes;
 
-    int newRequestedDepth; // We're storing the current depth on the frontend side in TreeState
+    // We're storing the current depth on the frontend side in TreeState
 
     int displayToTotRatio;
 
     InceptaTree() {};
 
-    InceptaTree(std::vector<InceptaNode<T>> visi, int tot, int reqDepth, int displayRatio) : visibleNodes(visi), totalNodes(tot),
-                                                                                             newRequestedDepth(reqDepth), displayToTotRatio(displayRatio) {};
+    InceptaTree(std::vector<InceptaNode<T>> visi, int tot, int displayRatio) : visibleNodes(visi), totalNodes(tot),
+                                                                        displayToTotRatio(displayRatio) {};
 };
