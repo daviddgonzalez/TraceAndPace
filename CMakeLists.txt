@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(TraceAndPace)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_BUILD_TYPE "Debug") # or "Release"
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/frontend/src/wasm")
 
@@ -16,12 +17,13 @@ set(SOURCE_FILES
         backend/AVLTree.hpp
         backend/BTree.hpp
         backend/TreeManager.hpp
+        backend/InceptaTree.hpp
 )
 
 add_executable(TraceAndPace ${SOURCE_FILES})
 
-# Flags for when running emcc
+# Flags for when running emcc (theres a lot)
 set_target_properties(TraceAndPace PROPERTIES
         SUFFIX ".mjs"
-        LINK_FLAGS "-g -s SINGLE_FILE=1 -s NO_EXIT_RUNTIME=1 -s STANDALONE_WASM=0 --embed-file ${CMAKE_CURRENT_SOURCE_DIR}/frontend/src/assets@/assets --bind --emit-tsd TraceAndPace.d.mts"
+        LINK_FLAGS "-pthread -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 -s PTHREAD_POOL_SIZE=8 -g -s NO_EXIT_RUNTIME=1 -s STANDALONE_WASM=0 --embed-file ${CMAKE_CURRENT_SOURCE_DIR}/frontend/src/assets@/assets --bind --emit-tsd TraceAndPace.d.mts"
 )

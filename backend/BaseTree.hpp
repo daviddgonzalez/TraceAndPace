@@ -1,26 +1,32 @@
 #pragma once
+
 #include <vector>
 #include <utility>
-#include <stdexcept>
 #include "json.hpp" //used from https://github.com/nlohmann/json
 #include <fstream>
+#include <string>
+#include <cmath>
+#include <queue>
+#include <functional>
+
+#include "InceptaTree.hpp"
+
 using json = nlohmann::json;
 
-
 template <typename T>
-class BaseTree {
+class BaseTree{
 public:
     BaseTree() = default;
 
-    BaseTree(const BaseTree& other) {
+    BaseTree(const BaseTree &other){
         root = copyNode(other.root);
     }
 
-    BaseTree& operator=(const BaseTree& other) {
+    BaseTree &operator=(const BaseTree &other){
         if (this == &other)
             return *this;
         delete root;
-        if (other.root == nullptr) {
+        if (other.root == nullptr){
             root = nullptr;
             return *this;
         }
@@ -28,12 +34,14 @@ public:
         return *this; // changed from &this to *this
     }
 
-    BaseTree(BaseTree&& other) noexcept {
+    BaseTree(BaseTree &&other) noexcept
+    {
         root = other.root;
         other.root = nullptr;
     };
 
-    BaseTree& operator=(BaseTree&& other) noexcept {
+    BaseTree &operator=(BaseTree &&other) noexcept
+    {
         if (this == &other)
             return *this;
         delete root;
@@ -43,7 +51,8 @@ public:
         // make return types consistent, if if statement is triggered you return *this else you dont return anything.
     }
 
-    virtual ~BaseTree() {
+    virtual ~BaseTree()
+    {
         delete root;
     }
 
@@ -52,62 +61,80 @@ public:
     virtual T find(int i) = 0;
     virtual int height() { return root ? root->height : 0; }
 
-
-    std::string treeToJsonToString() {
+    std::string treeToJsonString()
+    {
         json jsonOfTree = nodetoMiniJson(root);
 
-        return(jsonOfTree.dump(2)); //I read the docs, this just adds 2 spaces to make it more readable, change if you need to
+        return (jsonOfTree.dump(2));
+        // I read the docs, this just adds 2 spaces to make it more readable, change if you need to
     }
 
-    bool treeToJsonToFile() {
-        std::string stringOfJsonOfTree = treeToJsonToString(root);
+    bool treeToJsonFile(const std::string &filename)
+    {
+        std::string stringOfJsonOfTree = treeToJsonString();
 
-        std::ofstream writeToJsonFile(filename); //INSERT FILE NAME HERE WHEN WE DECIDE WHERE TO PUT
-        if (writeToJsonFile.is_open()) {
-            writeToJsonFile<<stringOfJsonOfTree;
+        std::ofstream writeToJsonFile("../frontend/src/assets/" + filename);
+        if (writeToJsonFile.is_open())
+        {
+            writeToJsonFile << stringOfJsonOfTree;
             writeToJsonFile.close();
             return true;
         }
         return false;
+    }
 
+    InceptaTree<T> createInceptaTree(int limitOfDisplayedNodes, std::string treeType)
+    {
+        return inceptaTreeHelper(root, 0, limitOfDisplayedNodes, treeType);
+    }
+
+    InceptaTree<T> createInceptaSubTree(Node *subRoot, int currDepth, int limitOfDisplayedNodes, std::string treeType)
+    {
+        return inceptaTreeHelper(subRoot, currDepth, limitOfDisplayedNodes, treeType);
     }
 
 protected:
     bool successfulSearch = false;
 
-    struct Node {
+    struct Node
+    {
         // these are the values each node could hold. It's a vector because of B trees
         std::vector<std::pair<int, T>> values;
-        std::vector<Node*> childrenNodes;
+        std::vector<Node *> childrenNodes;
 
-        //Please dont make numchildren static - every tree should be able to have its own # of children
-        //And js let every tree handle it separately
-        // ... fine
+        // Please dont make numchildren static - every tree should be able to have its own # of children
+        // And js let every tree handle it separately
+        //  ... fine
 
-        Node* parent = nullptr;
+        Node *parent = nullptr;
         int height = 0;
+        int subTreeSize = 0;
 
-        Node() = default; //michael please dont change it messes with BTree
+        Node() = default; // michael please dont change it messes with BTree
 
-        ~Node() {
-            for (Node* node : childrenNodes)
+        ~Node()
+        {
+            for (Node *node : childrenNodes)
                 delete node;
         }
     };
 
-    Node* root = nullptr;
+    Node *root = nullptr;
 
 private:
     // im making this private but if its needed in the future make it protected
-    Node* copyNode(Node* other) {
-        if (other == nullptr) {
+    Node *copyNode(Node *other)
+    {
+        if (other == nullptr)
+        {
             return nullptr;
         }
 
-        Node* out = new Node();
+        Node *out = new Node();
 
         out->values = other->values; // making this out->value = other->value; out/other are pointers
-        for (Node* node : other->childrenNodes) {
+        for (Node *node : other->childrenNodes)
+        {
             out->childrenNodes.push_back(copyNode(node));
             out->childrenNodes.back()->parent = out;
             out->childrenNodes.back()->height = node->height;
@@ -116,29 +143,108 @@ private:
         return out;
     }
 
-    json nodetoMiniJson(Node* recursiveNode) {
-
-        if (recursiveNode == nullptr) {
-            return nullptr; //Don't worry this is converted by json library to a json null I think
+    json nodetoMiniJson(Node *recursiveNode)
+    {
+        if (recursiveNode == nullptr)
+        {
+            return nullptr; // Don't worry this is converted by json library to a json null I think
         }
-
 
         json miniJson;
 
         miniJson["height"] = recursiveNode->height;
-        miniJson["values"] = json::array(); //Literally is the equivalent of std::vector for json library btw
+        miniJson["values"] = json::array(); // Literally is the equivalent of std::vector for json library btw
 
-        for (const auto& keyAndTemplateVal : recursiveNode->values) {
-            miniJson["values"].push_back({"key", keyAndTemplateVal.first}, {"value", keyAndTemplateVal.second});
-
+        for (const auto &keyAndTemplateVal : recursiveNode->values)
+        {
+            miniJson["values"].push_back({{"key", keyAndTemplateVal.first}, {"value", keyAndTemplateVal.second}});
         }
 
         miniJson["children"] = json::array();
-        for (Node* childrenNode: recursiveNode->childrenNodes) {
-            if (childrenNode != nullptr) {
-                miniJson["children"].push_back(nodetoMiniJson(childrenNode));
+        for (Node* kidNode: recursiveNode->childrenNodes)
+        {
+            if (kidNode != nullptr)
+            {
+                miniJson["children"].push_back(nodetoMiniJson(kidNode));
             }
         }
+        return miniJson;
     }
 
+    InceptaTree<T> inceptaTreeHelper(Node *subTreeRoot = this->root, int currDepth = 0, int limitOfDisplayedNodes = 50, std::string treetype){
+        int totalNodes = traverseAndCount(subTreeRoot);
+        int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
+
+        InceptaNode<T> displayRoot(subTreeRoot->values[0], currDepth, totalNodes, subTreeRoot->subTreeSize, treetype, false);
+        
+        std::vector<InceptaNode<T>> topNodes;
+        topNodes.push_back(displayRoot);
+
+        std::function<bool(Node*, Node*)> compBySubTreeSize = [](Node* left, Node* right){
+            return left->subTreeSize <right->subTreeSize; //I may have to reverse this dunno which is min/max heap
+        };
+
+        std::priority_queue<Node*, std::vector<Node*>, std::function<bool(Node*, Node*)>> maxHeapBySubTreeSize(compBySubTreeSize);
+
+        for(Node* child : subTreeRoot->childrenNodes){
+            maxHeapBySubTreeSize.push(child);
+        }
+
+        while(topNodes.size() < limitOfDisplayedNodes && maxHeapBySubTreeSize.empty() == false){
+            Node* nodeBiggestSubtree = maxHeapBySubTreeSize.top();
+            maxHeapBySubTreeSize.pop();
+
+            if(nodeBiggestSubtree->subTreeSize == 1){
+                InceptaNode<T> temp = expandInceptaNode(nodeBiggestSubtree,currDepth,treetype);
+                topNodes.push_back(temp);
+            }
+
+            else if(nodeBiggestSubtree->subTreeSize + topNodes.size() < limitOfDisplayedNodes){
+                InceptaNode<T> temp = expandInceptaNode(nodeBiggestSubtree,currDepth,treetype);
+                topNodes.push_back(temp);
+                for(Node* kid : nodeBiggestSubtree->childrenNodes){
+                    maxHeapBySubTreeSize.push(kid);
+                }
+            }
+
+            else{
+                InceptaNode<T> temp = condenseInceptaNode(nodeBiggestSubtree,currDepth,treetype);
+                topNodes.push_back(temp);
+            }
+        }
+        while(maxHeapBySubTreeSize.empty() == false){
+            topNodes.push_back(condenseInceptaNode(maxHeapBySubTreeSize.top(),currDepth, treetype));
+            maxHeapBySubTreeSize.pop();
+        }
+
+        InceptaTree<T> temp = {topNodes, totalNodes, displayToTotRatio};
+        return temp;
+    }
+
+    InceptaNode<T> expandInceptaNode(Node* nodeTBE, int depth, std::string treeType){ //dont pass it nullptr
+        InceptaNode<T> result = {nodeTBE->values[0], depth,nodeTBE->subTreeSize, nodeTBE->childrenNodes.size(), treeType, false};
+        return result;
+    }
+
+    InceptaNode<T> condenseInceptaNode(Node* nodeTBE, int depth, std::string treeType){ //dont pass it nullptr
+        InceptaNode<T> result = {nodeTBE->values[0], depth, nodeTBE->subTreeSize, 0, treeType, true};
+        return result;
+    }
+
+
+    int traverseAndCount(Node *subtreeRoot)
+    {
+        if (subtreeRoot == nullptr)
+        {
+            return 0;
+        }
+
+        int count = 1;
+        for (Node *child : subtreeRoot->childrenNodes)
+        {
+            count += traverseAndCount(child);
+        }
+
+        return count;
+    }
 };

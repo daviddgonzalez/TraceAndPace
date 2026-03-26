@@ -6,6 +6,7 @@ import { use, useState } from "react";
 import WasmFactory from "./wasm/TraceAndPace.mjs";
 import type { MainModule } from "./wasm/TraceAndPace.d.mts";
 import Visualization from "./Visualization";
+import BulkInput from "./BulkInput";
 
 const initializeWasm = async (): Promise<MainModule> => {
   return await WasmFactory();
@@ -24,6 +25,11 @@ function App() {
   // interestingly this also allows for scientific notation, thats some pretty nifty validation that we got for free
   const [insertInput, setInsertInput] = useState<string>("");
   const [removeInput, setRemoveInput] = useState<string>("");
+  const [findInput, setFindInput] = useState<string>("");
+  // this is a dumb way to update the visualization right now.
+  // TODO: remove this once a real rerender function is made
+  // for each option in the dropdown we need to switchout updating this number for calling the future rerender function
+  const [treeCount, setTreeCount] = useState<number>(wasm.numOfTrees());
 
   return (
     <>
@@ -61,25 +67,10 @@ function App() {
                     <button
                       className="dropdown-item"
                       type="button"
-                      onClick={() => wasm.addTree()}
-                    >
-                      B Tree
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      type="button"
-                      onClick={() => wasm.addTree()}
-                    >
-                      B+ Tree
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      type="button"
-                      onClick={() => wasm.addTree()}
+                      onClick={() => {
+                        wasm.addAVLTree();
+                        setTreeCount(wasm.numOfTrees());
+                      }}
                     >
                       AVL Tree
                     </button>
@@ -88,12 +79,46 @@ function App() {
                     <button
                       className="dropdown-item"
                       type="button"
-                      onClick={() => wasm.addTree()}
+                      onClick={() => {
+                        wasm.addBTree();
+                        setTreeCount(wasm.numOfTrees());
+                      }}
+                    >
+                      B Tree
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item disabled"
+                      type="button"
+                      onClick={() => wasm.addAVLTree()}
+                    >
+                      B+ Tree
+                    </button>
+                  </li>
+
+                  <li>
+                    <button
+                      className="dropdown-item disabled"
+                      type="button"
+                      onClick={() => wasm.addAVLTree()}
                     >
                       Splay
                     </button>
                   </li>
                 </ul>
+              </li>
+              {/* This is the button for opening the bulk input popup */}
+              <li>
+                <button
+                  className="btn btn-outline-primary"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#bulkInputTextBox"
+                  style={{ marginLeft: "10px" }}
+                >
+                  Bulk Input
+                </button>
               </li>
             </ul>
           </div>
@@ -113,12 +138,13 @@ function App() {
             <input
               className="form-control me-2"
               type="number"
+              step="1"
               placeholder="Insert Element"
               aria-label="Search"
               value={insertInput}
               onChange={(e) => setInsertInput(e.target.value)}
             />
-            <button className="btn btn-outline-success" type="submit">
+            <button className="btn btn-outline-primary" type="submit">
               Insert
             </button>
           </form>
@@ -139,23 +165,51 @@ function App() {
             <input
               className="form-control me-2"
               type="number"
+              step="1"
               placeholder="Remove Element"
               aria-label="Search"
               value={removeInput}
               onChange={(e) => setRemoveInput(e.target.value)}
             />
-            <button className="btn btn-outline-success" type="submit">
+            <button className="btn btn-outline-primary" type="submit">
               Remove
+            </button>
+          </form>
+          <form
+            className="d-flex"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const num = parseInt(findInput, 10);
+              if (!isNaN(num)) {
+                wasm.findInTrees(num);
+                setFindInput("");
+              }
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            <input
+              className="form-control me-2"
+              type="number"
+              step="1"
+              placeholder="Find Element"
+              aria-label="Search"
+              value={findInput}
+              onChange={(e) => setFindInput(e.target.value)}
+            />
+            <button className="btn btn-outline-primary" type="submit">
+              Find
             </button>
           </form>
         </div>
       </nav>
-
+      {/* TODO: once we have proper visualization, use that here instead.
+          Ideally we have the visualizations in a flexbox so they fit nicely on the screen */}
       <div className="container">
-        {/* DAVID! fix this. currently this doesnt get prompted for a rerender when one of the buttons are pressed. This means that the new visualization insnt shown until after you modify something else. */}
         {Array.from({ length: wasm.numOfTrees() }).map((_, i) => (
           <Visualization key={i} />
         ))}
+        <BulkInput wasm={wasm} />
       </div>
     </>
   );
