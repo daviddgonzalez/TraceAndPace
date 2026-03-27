@@ -9,6 +9,8 @@
 #include <queue>
 #include <functional>
 
+struct Node;
+
 #include "InceptaTree.hpp"
 
 using json = nlohmann::json;
@@ -88,7 +90,7 @@ public:
         return inceptaTreeHelper(root, 0, limitOfDisplayedNodes, treeType);
     }
 
-    InceptaTree<T> createInceptaSubTree(Node *subRoot, int currDepth, int limitOfDisplayedNodes, std::string treeType)
+    InceptaTree<T> createInceptaSubTree(Node* subRoot, int currDepth, int limitOfDisplayedNodes, std::string treeType)
     {
         return inceptaTreeHelper(subRoot, currDepth, limitOfDisplayedNodes, treeType);
     }
@@ -171,7 +173,7 @@ private:
         return miniJson;
     }
 
-    InceptaTree<T> inceptaTreeHelper(Node *subTreeRoot = this->root, int currDepth = 0, int limitOfDisplayedNodes = 50, std::string treetype){
+    InceptaTree<T> inceptaTreeHelper(Node *subTreeRoot, int currDepth = 0, int limitOfDisplayedNodes = 50, std::string treetype){
         int totalNodes = traverseAndCount(subTreeRoot);
         int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
 
