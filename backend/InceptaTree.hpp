@@ -20,13 +20,27 @@ struct InceptaNode
 
     int localChildCount; // amount of children that are displayed on screen
 
-    std::string treeType;
-
     bool condensed;
 
-    InceptaNode(std::pair<int, T> val, int d, int totalKids, int localKids, std::string type, bool condensed) : firstKeyAndVal(val), nodeDepth(d), totalNumOfNodes(totalKids),
+    InceptaNode(std::pair<int, T> val, int d, int totalKids, int localKids, bool condensed) : firstKeyAndVal(val), nodeDepth(d), totalNumOfNodes(totalKids),
                                                                                                     
-                                                                                                    localChildCount(localKids), treeType(type), condensed(condensed) {};
+                                                                                                    localChildCount(localKids), condensed(condensed) {};
+
+    json nodeToJson() const {
+        json nodeJson;
+
+        nodeJson["key"] = firstKeyAndVal.first;
+        nodeJson["value"] = firstKeyAndVal.second;
+
+        nodeJson["nodeDepth"] = nodeDepth;
+        nodeJson["totalNumOfNodes"] = totalNumOfNodes;
+
+        nodeJson["localChildCount"] = localChildCount;
+
+        nodeJson["condensed"] = condensed;
+
+        return nodeJson;
+    }
 };
 
 template <typename T>
@@ -45,4 +59,20 @@ struct InceptaTree
 
     InceptaTree(std::vector<InceptaNode<T>> visi, int tot, int displayRatio) : visibleNodes(visi), totalNodes(tot),
                                                                         displayToTotRatio(displayRatio) {};
+
+    json treeToJson() const {
+        json treeJson;
+
+        treeJson["totalNodes"] = totalNodes;
+        treeJson["displayToTotRatio"] = displayToTotRatio;
+
+        treeJson["visibleNodes"] = json::array();
+
+        for (const auto& node : visibleNodes) {
+            treeJson["visibleNodes"].push_back(node.nodeToJson());
+        }
+
+        return treeJson;
+
+    }
 };

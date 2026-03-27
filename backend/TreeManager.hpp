@@ -38,7 +38,6 @@ void insertToTrees(int number) {
         threads.emplace_back([tree, i, &number, &barrier]() {
             barrier.arrive_and_wait();
             tree->insert(number, std::to_string(number));
-            tree->treeToJsonFile("Tree" + std::to_string(i));
         });
     }
 
@@ -63,7 +62,7 @@ bool removeFromTrees(int number) {
             barrier.arrive_and_wait();
             if (!tree->remove(number))
                 out = false;
-            tree->treeToJsonFile("Tree" + std::to_string(i));
+           
         });
     }
 
@@ -90,7 +89,7 @@ bool findInTrees(int number) {
 
             if (std::to_string(number) != tree->find(number))
                 out = false;
-            tree->treeToJsonFile("Tree" + std::to_string(i));
+            
         });
     }
     return out;
@@ -187,4 +186,10 @@ void insertCSV(std::string csv, bool hasHeader, bool mustHash) {
     for (std::pair<int,std::string> datum : data)
         for (BaseTree<std::string>* tree : trees)
             tree->insert(datum.first,datum.second);
+}
+
+
+std::string getWholeView(int treeIndex, int limitOfDisplayedNodes){
+    std::string temp = trees[treeIndex]->getWholeViewJson(limitOfDisplayedNodes);
+    return temp;
 }
