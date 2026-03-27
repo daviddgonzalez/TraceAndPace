@@ -179,6 +179,11 @@ function BulkInput(props: props) {
                     };
                     // this calls the above function reading in the file
                     reader.readAsText(fileInput.current.files[0]);
+
+                    fileInput.current.value = "";
+                    setHasHeader(false);
+                    setNeedsHash(false);
+                    setUseFile(false);
                   } else if (textArea.current) {
                     handleABulkInput(textArea.current.value);
                     textArea.current.value = "";
