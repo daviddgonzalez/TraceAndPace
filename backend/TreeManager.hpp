@@ -62,7 +62,6 @@ bool removeFromTrees(int number) {
             barrier.arrive_and_wait();
             if (!tree->remove(number))
                 out = false;
-           
         });
     }
 
@@ -89,7 +88,6 @@ bool findInTrees(int number) {
 
             if (std::to_string(number) != tree->find(number))
                 out = false;
-            
         });
     }
     return out;
