@@ -9,14 +9,37 @@
 #include <queue>
 #include <functional>
 
-struct Node;
-
 #include "InceptaTree.hpp"
 
 using json = nlohmann::json;
 
 template <typename T>
 class BaseTree{
+
+protected:
+     struct Node{
+        // these are the values each node could hold. It's a vector because of B trees
+        std::vector<std::pair<int, T>> values;
+        std::vector<Node *> childrenNodes;
+
+        // Please dont make numchildren static - every tree should be able to have its own # of children
+        // And js let every tree handle it separately
+        //  ... fine
+
+        Node *parent = nullptr;
+        int height = 0;
+        int subTreeSize = 0;
+
+        Node() = default; // michael please dont change it messes with BTree
+
+        ~Node()
+        {
+            for (Node *node : childrenNodes)
+                delete node;
+        }
+    };
+
+
 public:
     BaseTree() = default;
 
@@ -87,39 +110,16 @@ public:
 
     InceptaTree<T> createInceptaTree(int limitOfDisplayedNodes, std::string treeType)
     {
-        return inceptaTreeHelper(0, limitOfDisplayedNodes, treeType, root);
+        return inceptaTreeHelper(treeType, root, 0, limitOfDisplayedNodes);
     }
 
     InceptaTree<T> createInceptaSubTree(Node* subRoot, int currDepth, int limitOfDisplayedNodes, std::string treeType)
     {
-        return inceptaTreeHelper( currDepth, limitOfDisplayedNodes, treeType, subRoot);
+        return inceptaTreeHelper( treeType, subRoot, currDepth, limitOfDisplayedNodes);
     }
 
 protected:
     bool successfulSearch = false;
-
-    struct Node
-    {
-        // these are the values each node could hold. It's a vector because of B trees
-        std::vector<std::pair<int, T>> values;
-        std::vector<Node *> childrenNodes;
-
-        // Please dont make numchildren static - every tree should be able to have its own # of children
-        // And js let every tree handle it separately
-        //  ... fine
-
-        Node *parent = nullptr;
-        int height = 0;
-        int subTreeSize = 0;
-
-        Node() = default; // michael please dont change it messes with BTree
-
-        ~Node()
-        {
-            for (Node *node : childrenNodes)
-                delete node;
-        }
-    };
 
     Node *root = nullptr;
 
@@ -173,7 +173,7 @@ private:
         return miniJson;
     }
 
-    InceptaTree<T> inceptaTreeHelper(int currDepth = 0, int limitOfDisplayedNodes = 50, std::string treetype, Node *subTreeRoot){
+    InceptaTree<T> inceptaTreeHelper(std::string treetype, Node *subTreeRoot, int currDepth = 0, int limitOfDisplayedNodes = 50){
         int totalNodes = traverseAndCount(subTreeRoot);
         int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
 
