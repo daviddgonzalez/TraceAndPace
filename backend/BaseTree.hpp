@@ -87,12 +87,12 @@ public:
 
     InceptaTree<T> createInceptaTree(int limitOfDisplayedNodes, std::string treeType)
     {
-        return inceptaTreeHelper(root, 0, limitOfDisplayedNodes, treeType);
+        return inceptaTreeHelper(0, limitOfDisplayedNodes, treeType, root);
     }
 
     InceptaTree<T> createInceptaSubTree(Node* subRoot, int currDepth, int limitOfDisplayedNodes, std::string treeType)
     {
-        return inceptaTreeHelper(subRoot, currDepth, limitOfDisplayedNodes, treeType);
+        return inceptaTreeHelper( currDepth, limitOfDisplayedNodes, treeType, subRoot);
     }
 
 protected:
@@ -173,7 +173,7 @@ private:
         return miniJson;
     }
 
-    InceptaTree<T> inceptaTreeHelper(Node *subTreeRoot, int currDepth = 0, int limitOfDisplayedNodes = 50, std::string treetype){
+    InceptaTree<T> inceptaTreeHelper(int currDepth = 0, int limitOfDisplayedNodes = 50, std::string treetype, Node *subTreeRoot){
         int totalNodes = traverseAndCount(subTreeRoot);
         int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
 
