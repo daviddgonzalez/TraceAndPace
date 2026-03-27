@@ -185,3 +185,9 @@ void insertCSV(std::string csv, bool hasHeader, bool mustHash) {
         for (BaseTree<std::string>* tree : trees)
             tree->insert(datum.first,datum.second);
 }
+
+
+std::string getWholeView(int treeIndex, int limitOfDisplayedNodes){
+    std::string temp = trees[treeIndex]->getWholeViewJson(limitOfDisplayedNodes);
+    return temp;
+}

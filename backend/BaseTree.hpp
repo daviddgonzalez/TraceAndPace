@@ -17,6 +17,7 @@ template <typename T>
 class BaseTree{
 
 protected:
+
      struct Node{
         // these are the values each node could hold. It's a vector because of B trees
         std::vector<std::pair<int, T>> values;
@@ -86,39 +87,50 @@ public:
     virtual T find(int i) = 0;
     virtual int height() { return root ? root->height : 0; }
 
-    std::string treeToJsonString()
-    {
-        json jsonOfTree = nodetoMiniJson(root);
 
-        return (jsonOfTree.dump(2));
-        // I read the docs, this just adds 2 spaces to make it more readable, change if you need to
+    //These have our old way of loading the ENTIRE tree into memory which is super inefficient
+    //The code might be useful later though? So let's keep it for now.
+
+    // std::string treeToJsonString()
+    // {
+    //     json jsonOfTree = nodetoMiniJson(root);
+
+    //     return (jsonOfTree.dump(2));
+    //     // I read the docs, this just adds 2 spaces to make it more readable, change if you need to
+    // }
+
+    // bool treeToJsonFile(const std::string &filename)
+    // {
+    //     std::string stringOfJsonOfTree = treeToJsonString();
+
+    //     std::ofstream writeToJsonFile("../frontend/src/assets/" + filename);
+    //     if (writeToJsonFile.is_open())
+    //     {
+    //         writeToJsonFile << stringOfJsonOfTree;
+    //         writeToJsonFile.close();
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
+    InceptaTree<T> createInceptaTree(int limitOfDisplayedNodes)
+    {
+        return inceptaTreeHelper(root, 0, limitOfDisplayedNodes);
     }
 
-    bool treeToJsonFile(const std::string &filename)
+    InceptaTree<T> createInceptaSubTree(Node* subRoot, int currDepth, int limitOfDisplayedNodes)
     {
-        std::string stringOfJsonOfTree = treeToJsonString();
-
-        std::ofstream writeToJsonFile("../frontend/src/assets/" + filename);
-        if (writeToJsonFile.is_open())
-        {
-            writeToJsonFile << stringOfJsonOfTree;
-            writeToJsonFile.close();
-            return true;
-        }
-        return false;
+        return inceptaTreeHelper(subRoot, currDepth, limitOfDisplayedNodes);
     }
 
-    InceptaTree<T> createInceptaTree(int limitOfDisplayedNodes, std::string treeType)
-    {
-        return inceptaTreeHelper(treeType, root, 0, limitOfDisplayedNodes);
-    }
-
-    InceptaTree<T> createInceptaSubTree(Node* subRoot, int currDepth, int limitOfDisplayedNodes, std::string treeType)
-    {
-        return inceptaTreeHelper( treeType, subRoot, currDepth, limitOfDisplayedNodes);
+    std::string getWholeViewJson(int limitOfDisplayedNodes){
+        InceptaTree<T> tempTree = createInceptaTree(limitOfDisplayedNodes);
+        return tempTree.treeToJson().dump();
     }
 
 protected:
+
+
     bool successfulSearch = false;
 
     Node *root = nullptr;
@@ -173,11 +185,11 @@ private:
         return miniJson;
     }
 
-    InceptaTree<T> inceptaTreeHelper(std::string treetype, Node *subTreeRoot, int currDepth = 0, int limitOfDisplayedNodes = 50){
+    InceptaTree<T> inceptaTreeHelper(Node *subTreeRoot, int currDepth = 0, int limitOfDisplayedNodes = 50){
         int totalNodes = traverseAndCount(subTreeRoot);
         int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
 
-        InceptaNode<T> displayRoot(subTreeRoot->values[0], currDepth, totalNodes, subTreeRoot->subTreeSize, treetype, false);
+        InceptaNode<T> displayRoot(subTreeRoot->values[0], currDepth, totalNodes, subTreeRoot->subTreeSize, false);
 
         std::vector<InceptaNode<T>> topNodes;
         topNodes.push_back(displayRoot);
@@ -197,12 +209,12 @@ private:
             maxHeapBySubTreeSize.pop();
 
             if(nodeBiggestSubtree->subTreeSize == 1){
-                InceptaNode<T> temp = expandInceptaNode(nodeBiggestSubtree,currDepth,treetype);
+                InceptaNode<T> temp = expandInceptaNode(nodeBiggestSubtree,currDepth);
                 topNodes.push_back(temp);
             }
 
             else if(nodeBiggestSubtree->subTreeSize + topNodes.size() < limitOfDisplayedNodes){
-                InceptaNode<T> temp = expandInceptaNode(nodeBiggestSubtree,currDepth,treetype);
+                InceptaNode<T> temp = expandInceptaNode(nodeBiggestSubtree,currDepth);
                 topNodes.push_back(temp);
                 for(Node* kid : nodeBiggestSubtree->childrenNodes){
                     maxHeapBySubTreeSize.push(kid);
@@ -210,12 +222,12 @@ private:
             }
 
             else{
-                InceptaNode<T> temp = condenseInceptaNode(nodeBiggestSubtree,currDepth,treetype);
+                InceptaNode<T> temp = condenseInceptaNode(nodeBiggestSubtree,currDepth);
                 topNodes.push_back(temp);
             }
         }
         while(maxHeapBySubTreeSize.empty() == false){
-            topNodes.push_back(condenseInceptaNode(maxHeapBySubTreeSize.top(),currDepth, treetype));
+            topNodes.push_back(condenseInceptaNode(maxHeapBySubTreeSize.top(),currDepth));
             maxHeapBySubTreeSize.pop();
         }
 
@@ -223,13 +235,13 @@ private:
         return temp;
     }
 
-    InceptaNode<T> expandInceptaNode(Node* nodeTBE, int depth, std::string treeType){ //dont pass it nullptr
-        InceptaNode<T> result = {nodeTBE->values[0], depth,nodeTBE->subTreeSize, nodeTBE->childrenNodes.size(), treeType, false};
+    InceptaNode<T> expandInceptaNode(Node* nodeTBE, int depth){ //dont pass it nullptr
+        InceptaNode<T> result = {nodeTBE->values[0], depth,nodeTBE->subTreeSize, nodeTBE->childrenNodes.size(), false};
         return result;
     }
 
-    InceptaNode<T> condenseInceptaNode(Node* nodeTBE, int depth, std::string treeType){ //dont pass it nullptr
-        InceptaNode<T> result = {nodeTBE->values[0], depth, nodeTBE->subTreeSize, 0, treeType, true};
+    InceptaNode<T> condenseInceptaNode(Node* nodeTBE, int depth){ //dont pass it nullptr
+        InceptaNode<T> result = {nodeTBE->values[0], depth, nodeTBE->subTreeSize, 0, true};
         return result;
     }
 
@@ -249,4 +261,6 @@ private:
 
         return count;
     }
+
+
 };

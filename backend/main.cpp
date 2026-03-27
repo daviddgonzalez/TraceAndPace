@@ -37,4 +37,6 @@ EMSCRIPTEN_BINDINGS(testing_module) {
 
     // i removed any exporting of objects, decided that all the objects will be managed in cpp
     // we will only export functions that will be called on button presses if that makes sense
+
+    emscripten::function("getWholeView",&getWholeView);
 }
