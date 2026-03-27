@@ -2,13 +2,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 import { use, useState } from "react";
+import { flushSync } from "react-dom";
 
 import WasmFactory from "./wasm/TraceAndPace.mjs";
 import type { MainModule } from "./wasm/TraceAndPace.d.mts";
 import Visualization from "./Visualization";
 import BulkInput from "./BulkInput";
 
-import type { InceptaTree } from "./treestructure.ts"
+import type { InceptaTree } from "./TreeStructure.tsx";
 
 const initializeWasm = async (): Promise<MainModule> => {
   return await WasmFactory();
@@ -35,16 +36,21 @@ function App() {
   const [treeViews, setTreeViews] = useState<InceptaTree[]>([]);
 
   const rerenderTreeViews = () => {
-    const v: InceptaTree[] = [];
+    // dont name variables 'v'
+    // what is that supposed to mean?
+    const trees: InceptaTree[] = [];
 
-    for (let i = 0; i < wasm.numOfTrees; i++) {
+    for (let i = 0; i < wasm.numOfTrees(); i++) {
       const treeJsonString = wasm.getWholeView(i, 50);
 
-      v.push(JSON.parse(treeJsonString));
+      trees.push(JSON.parse(treeJsonString));
     }
 
-    setTreeViews(v);
-  }
+    // forces react to change immediately
+    flushSync(() => {
+      setTreeViews(trees);
+    });
+  };
 
   return (
     <>
@@ -84,7 +90,7 @@ function App() {
                       type="button"
                       onClick={() => {
                         wasm.addAVLTree();
-                        setTreeCount(wasm.numOfTrees());
+                        rerenderTreeViews();
                       }}
                     >
                       AVL Tree
@@ -96,7 +102,7 @@ function App() {
                       type="button"
                       onClick={() => {
                         wasm.addBTree();
-                        setTreeCount(wasm.numOfTrees());
+                        rerenderTreeViews();
                       }}
                     >
                       B Tree
@@ -118,7 +124,7 @@ function App() {
                       type="button"
                       onClick={() => {
                         wasm.addSplayTree();
-                        setTreeCount(wasm.numOfTrees());
+                        rerenderTreeViews();
                       }}
                     >
                       Splay
@@ -150,6 +156,7 @@ function App() {
               if (!isNaN(num)) {
                 wasm.insertToTrees(num);
                 setInsertInput("");
+                rerenderTreeViews();
               }
             }}
           >
@@ -176,6 +183,7 @@ function App() {
               if (!isNaN(num)) {
                 wasm.removeFromTrees(num);
                 setRemoveInput("");
+                rerenderTreeViews();
               }
             }}
             style={{ marginLeft: "10px" }}
@@ -202,6 +210,7 @@ function App() {
               if (!isNaN(num)) {
                 wasm.findInTrees(num);
                 setFindInput("");
+                rerenderTreeViews();
               }
             }}
             style={{ marginLeft: "10px" }}
@@ -224,10 +233,16 @@ function App() {
       {/* TODO: once we have proper visualization, use that here instead.
           Ideally we have the visualizations in a flexbox so they fit nicely on the screen */}
       <div className="container">
-        {Array.from({ length: wasm.numOfTrees() }).map((_, i) => (
-          <Visualization key={i} />
+        {treeViews.map((tree, i) => (
+          <Visualization
+            tree={tree}
+            key={i}
+            wasm={wasm}
+            treeIndex={i}
+            rerenderTreeViews={rerenderTreeViews}
+          />
         ))}
-        <BulkInput wasm={wasm} />
+        <BulkInput wasm={wasm} rerenderTreeViews={rerenderTreeViews} />
       </div>
     </>
   );

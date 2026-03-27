@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 import type { MainModule } from "./wasm/TraceAndPace.d.mts";
+import { resumeAndPrerender } from "react-dom/static";
 
 // this is an interface called props, this is how you pass things in react, dont ask me about it
 interface props {
   wasm: MainModule;
+  rerenderTreeViews: () => void;
 }
 
-function BulkInput(props: props) {
-  const wasm = props.wasm;
-
+function BulkInput({ wasm, rerenderTreeViews }: props) {
   // this function needs to be called for each tree
   const raceTree = (
     treeIndex: number,
@@ -28,7 +28,7 @@ function BulkInput(props: props) {
         treeIndex,
         parseInt(commands[step][1]),
       );
-      // TODO: include rerender function call here
+      rerenderTreeViews();
       step++;
       setTimeout(runSingleCommand, delay);
     };

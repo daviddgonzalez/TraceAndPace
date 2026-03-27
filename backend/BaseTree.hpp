@@ -186,6 +186,9 @@ private:
     }
 
     InceptaTree<T> inceptaTreeHelper(Node *subTreeRoot, int currDepth = 0, int limitOfDisplayedNodes = 50){
+        if (subTreeRoot == nullptr) {
+            return InceptaTree<T>({}, 0, 0);
+        }
         int totalNodes = traverseAndCount(subTreeRoot);
         int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
 

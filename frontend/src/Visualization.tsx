@@ -1,4 +1,15 @@
-function Visualization() {
+import type { InceptaTree } from "./TreeStructure";
+import type { MainModule } from "./wasm/TraceAndPace.d.mts";
+import Node from "./Node";
+
+interface props {
+  tree: InceptaTree;
+  wasm: MainModule;
+  treeIndex: number;
+  rerenderTreeViews: () => void;
+}
+
+function Visualization({ tree, wasm, treeIndex, rerenderTreeViews }: props) {
   return (
     <>
       <div className="card" style={{ width: "18rem" }}>
@@ -9,11 +20,16 @@ function Visualization() {
               type="button"
               className="btn-close"
               aria-label="Close"
+              onClick={() => {
+                wasm.removeFromTrees(treeIndex);
+                rerenderTreeViews();
+              }}
             ></button>
           </div>
-          <p className="card-text">
-            This is where a tree visualization will be
-          </p>
+          {/* returns an array of nodes */}
+          {tree.visibleNodes.map((node, i) => (
+            <Node key={i} node={node} />
+          ))}
         </div>
       </div>
     </>
