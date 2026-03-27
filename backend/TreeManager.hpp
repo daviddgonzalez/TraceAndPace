@@ -9,6 +9,7 @@
 #include "AVLTree.hpp"
 #include "BaseTree.hpp"
 #include "BTree.hpp"
+#include "SplayTree.hpp"
 
 
 std::vector<BaseTree<std::string>*> trees;
@@ -19,6 +20,9 @@ void addAVLTree() {
 }
 void addBTree() {
     trees.push_back(new VisualBTree<std::string>);
+}
+void addSplayTree() {
+    trees.push_back(new SplayTree<std::string>);
 }
 
 void insertToTrees(int number) {

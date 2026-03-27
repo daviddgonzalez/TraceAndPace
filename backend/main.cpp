@@ -21,6 +21,8 @@ EMSCRIPTEN_BINDINGS(testing_module) {
     // tree functions
     emscripten::function("addAVLTree", &addAVLTree);
     emscripten::function("addBTree", &addBTree);
+    emscripten::function("addSplayTree", &addSplayTree);
+
     emscripten::function("insertToTrees", &insertToTrees);
     emscripten::function("removeFromTrees", &removeFromTrees);
     emscripten::function("findInTrees", &findInTrees);
