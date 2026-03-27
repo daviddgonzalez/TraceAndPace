@@ -235,8 +235,9 @@ private:
         return temp;
     }
 
-    InceptaNode<T> expandInceptaNode(Node* nodeTBE, int depth){ //dont pass it nullptr
-        InceptaNode<T> result = {nodeTBE->values[0], depth,nodeTBE->subTreeSize, nodeTBE->childrenNodes.size(), false};
+    InceptaNode<T> expandInceptaNode(Node* nodeTBE, int depth){ //dont pass it nullptr - what if i do?
+        // TODO: David look at this conversion
+        InceptaNode<T> result = {nodeTBE->values[0], depth,nodeTBE->subTreeSize, static_cast<int>(nodeTBE->childrenNodes.size()), false};
         return result;
     }
 
