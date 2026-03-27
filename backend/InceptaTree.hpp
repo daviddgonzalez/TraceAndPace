@@ -24,8 +24,6 @@ struct InceptaNode
 
     bool condensed;
 
-    InceptaNode() {};
-
     InceptaNode(std::pair<int, T> val, int d, int totalKids, int localKids, std::string type, bool condensed) : firstKeyAndVal(val), nodeDepth(d), totalNumOfNodes(totalKids),
                                                                                                     
                                                                                                     localChildCount(localKids), treeType(type), condensed(condensed) {};
