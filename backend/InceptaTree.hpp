@@ -16,7 +16,7 @@ struct InceptaNode
     //zoom depth - how zoomed in the user is
     //node depth - how many levels deep this particular node is
 
-    int totalNumOfNodes; // how many children the node has, present or not and i added itself
+    int totalNumOfNodes; // how many children the node has, present or not and including itself
 
     int localChildCount; // amount of children that are displayed on screen
 

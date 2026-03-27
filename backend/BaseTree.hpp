@@ -88,7 +88,7 @@ public:
         return inceptaTreeHelper(root, 0, limitOfDisplayedNodes, treeType);
     }
 
-    InceptaTree<T> createInceptaSubTree(Node *subRoot, int currDepth, int limitOfDisplayedNodes, std::string treeType)
+    InceptaTree<T> createInceptaSubTree(Node* subRoot, int currDepth, int limitOfDisplayedNodes, std::string treeType)
     {
         return inceptaTreeHelper(subRoot, currDepth, limitOfDisplayedNodes, treeType);
     }
@@ -176,7 +176,7 @@ private:
         int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
 
         InceptaNode<T> displayRoot(subTreeRoot->values[0], currDepth, totalNodes, subTreeRoot->subTreeSize, treetype, false);
-        
+
         std::vector<InceptaNode<T>> topNodes;
         topNodes.push_back(displayRoot);
 

@@ -4,6 +4,7 @@
 #include <thread>
 #include <barrier>
 #include <chrono>
+#include <functional>
 
 #include "AVLTree.hpp"
 #include "BaseTree.hpp"
@@ -149,4 +150,37 @@ std::vector<double> runBulkCommands(std::string inputString) {
         out.at(i) = static_cast<double>(times.at(i))/minTime * oneFrame;
 
     return out;
+}
+
+void insertCSV(std::string csv, bool hasHeader, bool mustHash) {
+    std::vector<std::pair<int,std::string>> data;
+
+    std::istringstream stringStream(csv);
+    std::string line;
+
+    if (hasHeader)
+        std::getline(stringStream, line); // ditch the header
+
+    std::hash<std::string>* hasher = nullptr; // this way hasher is only instantiated if we need it (i have a feeling this is just a basic functor)
+    if (mustHash)
+        hasher = new std::hash<std::string>();
+
+    while (std::getline(stringStream, line)) {
+        std::string workingString;
+        std::istringstream rowStream;
+        std::getline(rowStream,workingString, ',');
+        std::size_t key;
+        if (mustHash)
+            key = static_cast<int>((*hasher)(workingString));
+        else
+            key = std::stoi(workingString);
+        rowStream >> workingString;
+        data.push_back({key,workingString});
+    }
+    // we are now done with hasher
+    delete hasher;
+
+    for (std::pair<int,std::string> datum : data)
+        for (BaseTree<std::string>* tree : trees)
+            tree->insert(datum.first,datum.second);
 }
