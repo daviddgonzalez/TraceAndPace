@@ -124,8 +124,13 @@ public:
     }
 
     std::string getWholeViewJson(int limitOfDisplayedNodes){
-        InceptaTree<T> tempTree = createInceptaTree(limitOfDisplayedNodes);
-        return tempTree.treeToJson().dump();
+       json wholeView = treeCondenser(root, 50);
+        return tempTree.dump();
+    }
+
+    std::string getSubViewJson(int key, int limit){
+        Node* subtreeRoot = this->find(key);
+        //later problem
     }
 
 protected:
@@ -185,9 +190,77 @@ private:
         return miniJson;
     }
 
+    json treeCondenser(Node* subtreeRoot, int budgetPerSubTree){
+        if(subtreeRoot == nullptr){
+            return json(nullptr);
+        }
+
+        if(budgetPerSubTree<=0){
+             json condensedInceptaNode;
+
+             condensedInceptaNode["key"] = subtreeRoot->values[0].first;
+             condensedInceptaNode["value"] = subtreeRoot->values[0].second;
+
+             condensedInceptaNode["condensed"] = true;
+
+             condensedInceptaNode["totalNumOfNodes"] = subtreeRoot->subTreeSize;
+             condensedInceptaNode["displayedNodes"] = 1;
+             condensedInceptaNode["children"] = json::array(); //You'll fill this when you call getSubtreeView
+
+             return condensedInceptaNode;
+        }
+
+        --budgetPerSubTree;
+
+        json expandedInceptaNode;
+
+        expandedInceptaNode["key"] = subtreeRoot->values[0].first;
+        expandedInceptaNode["value"] = subtreeRoot->values[0].second;
+
+        expandedInceptaNode["condensed"] = false;
+
+        expandedInceptaNode["totalNumOfNodes"] = subtreeRoot->subTreeSize;
+        expandedInceptaNode["children"] = json::array(); //we'll fill this recursively
+
+        int amtDisplayedNodes = 1;
+
+
+        int totalSubtreeWeight = 0;
+
+        for(Node* kid : subtreeRoot->childrenNodes){
+            if(kid!=nullptr){
+                totalSubtreeWeight+=kid->subTreeSize;
+            }
+        }
+
+        int childBudget = 0;
+        for(Node* child : subtreeRoot->childrenNodes){
+            if(child == nullptr) continue;
+
+            if(totalSubtreeWeight == 0){
+                childBudget = 0;
+            }
+            else{
+                childBudget =std::floor((budgetPerSubTree-1)* child->subTreeSize / (double)totalSubtreeWeight); //This is meant to split the budget proportionally to size of subtree
+            }
+
+            json childNodeInJson = treeCondenser(child, childBudget);
+            if (!childNodeInJson.is_null()) {
+                
+                amtDisplayedNodes += childNodeInJson["displayedNodes"].get<int>();
+
+                expandedInceptaNode["children"].push_back(childNodeInJson);
+            }
+        }
+
+        expandedInceptaNode["displayedNodes"] = amtDisplayedNodes;
+        return expandedInceptaNode;
+
+    }
+
     InceptaTree<T> inceptaTreeHelper(Node *subTreeRoot, int currDepth = 0, int limitOfDisplayedNodes = 50){
         if (subTreeRoot == nullptr) {
-            return InceptaTree<T>({}, 0, 0);
+            return InceptaTree<T>({}, 0, 50);
         }
         int totalNodes = traverseAndCount(subTreeRoot);
         int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
@@ -239,7 +312,7 @@ private:
     }
 
     InceptaNode<T> expandInceptaNode(Node* nodeTBE, int depth){ //dont pass it nullptr - what if i do?
-        // TODO: David look at this conversion
+        // DONE: Its good :)
         InceptaNode<T> result = {nodeTBE->values[0], depth,nodeTBE->subTreeSize, static_cast<int>(nodeTBE->childrenNodes.size()), false};
         return result;
     }
