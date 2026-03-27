@@ -187,7 +187,7 @@ private:
 
     InceptaTree<T> inceptaTreeHelper(Node *subTreeRoot, int currDepth = 0, int limitOfDisplayedNodes = 50){
         if (subTreeRoot == nullptr) {
-            return InceptaTree<T>({}, 0, 0);
+            return InceptaTree<T>({}, 0, 50);
         }
         int totalNodes = traverseAndCount(subTreeRoot);
         int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
@@ -204,7 +204,8 @@ private:
         std::priority_queue<Node*, std::vector<Node*>, std::function<bool(Node*, Node*)>> maxHeapBySubTreeSize(compBySubTreeSize);
 
         for(Node* child : subTreeRoot->childrenNodes){
-            maxHeapBySubTreeSize.push(child);
+            if(child != nullptr)
+                maxHeapBySubTreeSize.push(child);
         }
 
         while(topNodes.size() < limitOfDisplayedNodes && maxHeapBySubTreeSize.empty() == false){
@@ -220,7 +221,8 @@ private:
                 InceptaNode<T> temp = expandInceptaNode(nodeBiggestSubtree,currDepth);
                 topNodes.push_back(temp);
                 for(Node* kid : nodeBiggestSubtree->childrenNodes){
-                    maxHeapBySubTreeSize.push(kid);
+                    if(kid != nullptr)
+                        maxHeapBySubTreeSize.push(kid);
                 }
             }
 

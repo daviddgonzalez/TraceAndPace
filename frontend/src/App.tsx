@@ -29,10 +29,7 @@ function App() {
   const [insertInput, setInsertInput] = useState<string>("");
   const [removeInput, setRemoveInput] = useState<string>("");
   const [findInput, setFindInput] = useState<string>("");
-  // this is a dumb way to update the visualization right now.
-  // TODO: remove this once a real rerender function is made
-  // for each option in the dropdown we need to switchout updating this number for calling the future rerender function
-  const [treeCount, setTreeCount] = useState<number>(wasm.numOfTrees());
+
   const [treeViews, setTreeViews] = useState<InceptaTree[]>([]);
 
   const rerenderTreeViews = () => {
@@ -53,7 +50,7 @@ function App() {
   };
 
   return (
-    <>
+    <div className="d-flex flex-column" style={{ height: "100vh" }}>
       {/* bootstrap navbar element, made a dropdown to add a tree */}
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid">
@@ -230,9 +227,7 @@ function App() {
           </form>
         </div>
       </nav>
-      {/* TODO: once we have proper visualization, use that here instead.
-          Ideally we have the visualizations in a flexbox so they fit nicely on the screen */}
-      <div className="container">
+      <div className="d-flex gap-3 p-3" style={{ flex: 1, alignItems: "stretch" }}>
         {treeViews.map((tree, i) => (
           <Visualization
             tree={tree}
@@ -244,7 +239,7 @@ function App() {
         ))}
         <BulkInput wasm={wasm} rerenderTreeViews={rerenderTreeViews} />
       </div>
-    </>
+    </div>
   );
 }
 

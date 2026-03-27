@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import type { MainModule } from "./wasm/TraceAndPace.d.mts";
-import { resumeAndPrerender } from "react-dom/static";
 
 // this is an interface called props, this is how you pass things in react, dont ask me about it
 interface props {
