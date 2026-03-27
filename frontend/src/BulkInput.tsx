@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { MainModule } from "./wasm/TraceAndPace.d.mts";
 
 // this is an interface called props, this is how you pass things in react, dont ask me about it
@@ -17,7 +17,7 @@ function BulkInput(props: props) {
   ): void => {
     let step = 0;
 
-    // definition of a recirsive function that delays its future call by a set time
+    // definition of a recursive function that delays its future call by a set time
     const runSingleCommand = () => {
       if (step >= commands.length) {
         return; // base case where we are done
@@ -47,9 +47,16 @@ function BulkInput(props: props) {
     for (let i = 0; i < timeVector.size(); i++) {
       raceTree(i, commands, Number(timeVector.get(i)));
     }
+
+    timeVector.delete();
   };
 
   const textArea = useRef<HTMLTextAreaElement>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [useFile, setUseFile] = useState<boolean>(false);
+  const [hasHeader, setHasHeader] = useState<boolean>(false);
+  const [needsHash, setNeedsHash] = useState<boolean>(false);
+
   return (
     <>
       {/* bootstrap is so cool */}
@@ -65,30 +72,86 @@ function BulkInput(props: props) {
                 aria-label="Close"
               ></button>
             </div>
-            <div className="modal-body">
-              <p>
-                Below insert commands in the format of:
-                <br />
-                {"<command> <integer>"}
-                <br />
-                <br />
-                Each command on a new line with space between command and
-                number.
-                <br /> Acceptable commands are: "insert", "remove", and "find".
-              </p>
-              <div className="form-floating">
-                <textarea
+            {/* a ternary operator that wraps the two options for input, controls which the user sees */}
+            {useFile ? (
+              <div className="modal-body">
+                <label htmlFor="formFile" className="form-label">
+                  Insert a .csv file of your choosing here
+                </label>
+                <input
                   className="form-control"
-                  placeholder="Insert Lines of Commands Each On a New Line"
-                  id="floatingTextarea2"
-                  style={{ height: "100px" }}
-                  ref={textArea}
-                ></textarea>
-                {/* the ref thing is basically a react variable that is a refrence to this. So we can diddle this element later */}
-                <label htmlFor="floatingTextarea2">Paste Commands Here</label>
+                  id="formFile"
+                  type="file"
+                  accept=".csv"
+                  ref={fileInput}
+                />
+                <div className="form-check mt-3">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    value=""
+                    id="checkDefault"
+                    checked={hasHeader}
+                    onChange={() => {
+                      setHasHeader(!hasHeader);
+                    }}
+                  />
+                  <label className="form-check-label" htmlFor="checkDefault">
+                    This .csv has a header row
+                  </label>
+                </div>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    value=""
+                    id="checkDefault"
+                    checked={needsHash}
+                    onChange={() => {
+                      setNeedsHash(!needsHash);
+                    }}
+                  />
+                  <label className="form-check-label" htmlFor="checkDefault">
+                    This .csv has a first column of integers
+                  </label>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="modal-body">
+                <p>
+                  Below insert commands in the format of:
+                  <br />
+                  {"<command> <integer>"}
+                  <br />
+                  <br />
+                  Each command on a new line with space between command and
+                  number.
+                  <br /> Acceptable commands are: "insert", "remove", and
+                  "find".
+                </p>
+                <div className="form-floating">
+                  <textarea
+                    className="form-control"
+                    placeholder="Insert Lines of Commands Each On a New Line"
+                    id="floatingTextarea2"
+                    style={{ height: "100px" }}
+                    ref={textArea}
+                  ></textarea>
+                  {/* the ref thing is basically a react variable that is a refrence to this. So we can diddle this element later */}
+                  <label htmlFor="floatingTextarea2">Paste Commands Here</label>
+                </div>
+              </div>
+            )}
             <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-outline-secondary me-auto"
+                onClick={() => {
+                  setUseFile(!useFile);
+                }}
+              >
+                {useFile ? "press to use text input" : "press to input .csv"}
+              </button>
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -102,13 +165,32 @@ function BulkInput(props: props) {
                 className="btn btn-primary"
                 data-bs-dismiss="modal"
                 onClick={() => {
-                  if (textArea.current) {
+                  if (useFile && fileInput.current?.files?.[0]) {
+                    const reader = new FileReader();
+
+                    // we are defining what will happen when this object reads in a file
+                    // it prevents the browser from freezing when loading the file
+                    reader.onload = (event) => {
+                      wasm.insertCSV(
+                        event.target?.result as string,
+                        hasHeader,
+                        needsHash,
+                      );
+                    };
+                    // this calls the above function reading in the file
+                    reader.readAsText(fileInput.current.files[0]);
+
+                    fileInput.current.value = "";
+                    setHasHeader(false);
+                    setNeedsHash(false);
+                    setUseFile(false);
+                  } else if (textArea.current) {
                     handleABulkInput(textArea.current.value);
                     textArea.current.value = "";
                   }
                 }}
               >
-                Run
+                {useFile ? "Insert" : "Run"}
               </button>
             </div>
           </div>

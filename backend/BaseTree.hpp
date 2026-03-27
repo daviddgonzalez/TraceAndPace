@@ -178,7 +178,7 @@ private:
         int displayToTotRatio = std::ceil((double)totalNodes / limitOfDisplayedNodes);
 
         InceptaNode<T> displayRoot(subTreeRoot->values[0], currDepth, totalNodes, subTreeRoot->subTreeSize, treetype, false);
-        
+
         std::vector<InceptaNode<T>> topNodes;
         topNodes.push_back(displayRoot);
 

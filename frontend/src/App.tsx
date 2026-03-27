@@ -99,9 +99,12 @@ function App() {
 
                   <li>
                     <button
-                      className="dropdown-item disabled"
+                      className="dropdown-item"
                       type="button"
-                      onClick={() => wasm.addAVLTree()}
+                      onClick={() => {
+                        wasm.addSplayTree();
+                        setTreeCount(wasm.numOfTrees());
+                      }}
                     >
                       Splay
                     </button>

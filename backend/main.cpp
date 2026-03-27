@@ -21,6 +21,8 @@ EMSCRIPTEN_BINDINGS(testing_module) {
     // tree functions
     emscripten::function("addAVLTree", &addAVLTree);
     emscripten::function("addBTree", &addBTree);
+    emscripten::function("addSplayTree", &addSplayTree);
+
     emscripten::function("insertToTrees", &insertToTrees);
     emscripten::function("removeFromTrees", &removeFromTrees);
     emscripten::function("findInTrees", &findInTrees);
@@ -31,7 +33,7 @@ EMSCRIPTEN_BINDINGS(testing_module) {
 
     emscripten::register_vector<double>("doubleVector");
     emscripten::function("runBulkCommands", &runBulkCommands);
-    // TODO: add the corgis random dataset
+    emscripten::function("insertCSV", &insertCSV);
 
     // i removed any exporting of objects, decided that all the objects will be managed in cpp
     // we will only export functions that will be called on button presses if that makes sense
