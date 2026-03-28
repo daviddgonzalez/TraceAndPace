@@ -221,8 +221,16 @@ private:
         if(budgetPerSubTree<=0){
              json condensedInceptaNode;
 
-             condensedInceptaNode["key"] = subtreeRoot->values[0].first;
-             condensedInceptaNode["value"] = subtreeRoot->values[0].second;
+             json keyValPairArray = json::array();
+
+             for(auto pair: subtreeRoot->values){
+                keyValPairArray.push_back({
+                    {"key", pair.first},
+                    {"value", pair.second}
+                });
+             };
+
+             condensedInceptaNode["keyValPairs"] = keyValPairArray;
 
              condensedInceptaNode["condensed"] = true;
 
@@ -248,23 +256,30 @@ private:
         int amtDisplayedNodes = 1;
 
 
-        int totalSubtreeWeight = 0;
+        int totalSubtreeSize = 0;
 
         for(Node* kid : subtreeRoot->childrenNodes){
             if(kid!=nullptr){
-                totalSubtreeWeight+=kid->subTreeSize;
+                totalSubtreeSize+=kid->subTreeSize;
             }
         }
+
+        int remainingDisplayNodes = budgetPerSubTree-1;
+        int remainingTotNodes = totalSubtreeSize;
+
 
         int childBudget = 0;
         for(Node* child : subtreeRoot->childrenNodes){
             if(child == nullptr) continue;
 
-            if(totalSubtreeWeight == 0){
+            if(totalSubtreeSize== 0){
                 childBudget = 0;
             }
             else{
-                childBudget =std::floor((budgetPerSubTree-1)* child->subTreeSize / (double)totalSubtreeWeight); //This is meant to split the budget proportionally to size of subtree
+                childBudget =std::floor((remainingDisplayNodes)* child->subTreeSize / (double)remainingTotNodes); //This is meant to split the budget proportionally to size of subtree
+
+                remainingDisplayNodes-=childBudget;
+                remainingTotNodes-=child->subTreeSize;
             }
 
             json childNodeInJson = treeCondenser(child, childBudget);

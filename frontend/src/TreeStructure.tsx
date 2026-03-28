@@ -1,9 +1,14 @@
 // michael changed the name and file type. David: you should try and maintain the design patterns of the project
 // I'm sorry Michael :( I will try harder next time
 
-export interface InceptaNode {
+export interface keyValPair {
   key: number;
   value: string;
+}
+
+
+export interface InceptaNode {
+  keyValPairs: keyValPair[];
   condensed: boolean;
   totalNumOfNodes: number;
   displayedNodes: number;
