@@ -45,8 +45,12 @@ public:
             throw std::invalid_argument("Key does not exist");
         }
 
-        splay(result.second);
-        this->root = result.second;
+        // I(michael) cant think of a better easy way to calculate splaytree children size
+        // but splay tree already has worst case O(n) so if there was a change made i just recalculate
+        if (result.second != this->root) {
+            splay(result.second);
+            BaseTree<T>::calculateSubTreeSize(this->root);
+        }
 
         return result.second->values[0].second;
     }
@@ -82,6 +86,10 @@ public:
 
         splay(newNode);
         this->root = newNode;
+
+        // I(michael) cant think of a better easy way to calculate splaytree children size
+        // but splay tree already has worst case O(n) so if there was a change made i just recalculate
+        BaseTree<T>::calculateSubTreeSize(this->root);
 
         return true;
     }
@@ -123,6 +131,9 @@ public:
         if (rightSub) rightSub->parent = curr;
 
         this->root = curr;
+
+        BaseTree<T>::calculateSubTreeSize(this->root);
+
         return true;
     }
 

@@ -195,7 +195,9 @@ void insertCSV(std::string csv, bool hasHeader, bool mustHash) {
 
     for (std::pair<int,std::string> datum : data)
         for (BaseTree<std::string>* tree : trees)
-            tree->insert(datum.first,datum.second);
+            while (!tree->insert(datum.first,datum.second))
+                datum.first++;
+
 }
 
 

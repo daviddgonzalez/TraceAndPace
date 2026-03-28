@@ -153,6 +153,16 @@ protected:
 
     Node *root = nullptr;
 
+    int calculateSubTreeSize(Node* current) {
+        if (current == nullptr)
+            return 0;
+        int sum = 1;
+        for (Node* child : current->childrenNodes)
+            sum += calculateSubTreeSize(child);
+        current->subTreeSize = sum;
+        return sum;
+    }
+
 private:
     // im making this private but if its needed in the future make it protected
     Node *copyNode(Node *other)
@@ -338,8 +348,7 @@ private:
     }
 
 
-    int traverseAndCount(Node *subtreeRoot)
-    {
+    int traverseAndCount(Node *subtreeRoot) {
         if (subtreeRoot == nullptr)
         {
             return 0;
@@ -353,6 +362,4 @@ private:
 
         return count;
     }
-
-
 };
