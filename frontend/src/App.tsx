@@ -9,7 +9,7 @@ import type { MainModule } from "./wasm/TraceAndPace.d.mts";
 import Visualization from "./Visualization";
 import BulkInput from "./BulkInput";
 
-import type { InceptaTree } from "./TreeStructure.tsx";
+import type { InceptaNode } from "./TreeStructure.tsx";
 
 const initializeWasm = async (): Promise<MainModule> => {
   return await WasmFactory();
@@ -33,12 +33,12 @@ function App() {
   // TODO: remove this once a real rerender function is made
   // for each option in the dropdown we need to switchout updating this number for calling the future rerender function
   const [treeCount, setTreeCount] = useState<number>(wasm.numOfTrees());
-  const [treeViews, setTreeViews] = useState<InceptaTree[]>([]);
+  const [treeViews, setTreeViews] = useState<InceptaNode[]>([]);
 
   const rerenderTreeViews = () => {
     // dont name variables 'v'
     // what is that supposed to mean?
-    const trees: InceptaTree[] = [];
+    const trees: InceptaNode[] = [];
 
     for (let i = 0; i < wasm.numOfTrees(); i++) {
       const treeJsonString = wasm.getWholeView(i, 50);
