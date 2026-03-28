@@ -261,7 +261,7 @@ private:
                 childBudget =std::floor((remainingDisplayNodes)* child->subTreeSize / (double)remainingTotNodes); //This is meant to split the budget proportionally to size of subtree
 
                 remainingDisplayNodes-=childBudget;
-                remainingTotNodes-=child->subtreeSize;
+                remainingTotNodes-=child->subTreeSize;
             }
 
             json childNodeInJson = treeCondenser(child, childBudget);
