@@ -8,6 +8,10 @@ class AVLTree : public BaseTree<T> {
 public:
     AVLTree() = default;
 
+    BaseTree<T>* clone() override {
+        return new AVLTree<T>(*this);
+    }
+
     bool insert(int id, T item) override {
         Node* toInsert = new Node();
         toInsert->values.push_back({id, item});

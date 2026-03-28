@@ -8,6 +8,10 @@ class SplayTree : public BaseTree<T>
 public:
     using Node = typename BaseTree<T>::Node;
 
+    BaseTree<T>* clone() override {
+        return new SplayTree<T>(*this);
+    }
+
     // --- SEARCH ---
     std::pair<bool, Node*> search(int key) override
     {

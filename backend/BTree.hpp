@@ -15,6 +15,10 @@ public:
     // copy operations, calls Base class to handle copying structure for constructor and assignment.
     VisualBTree(const VisualBTree &other) : BaseTree<T>(other), nodeKeys(other.nodeKeys), nodeNumChildren(other.nodeNumChildren) {}
 
+    BaseTree<T>* clone() override {
+        return new VisualBTree(*this);
+    }
+
     VisualBTree &operator=(const VisualBTree &other)
     {
         BaseTree<T>::operator=(other);

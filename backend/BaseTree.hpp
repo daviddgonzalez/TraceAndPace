@@ -82,6 +82,9 @@ public:
         delete root;
     }
 
+    // necessary to make a deep copy through the ABC
+    virtual BaseTree<T>* clone() = 0;
+
     virtual bool insert(int i, T value) = 0;
     virtual bool remove(int i) = 0;
     virtual T find(int i) = 0;

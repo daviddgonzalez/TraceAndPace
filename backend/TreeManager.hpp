@@ -126,6 +126,11 @@ std::vector<double> runBulkCommands(std::string inputString) {
     std::vector<double> out(trees.size());
     std::vector<long long> times(trees.size());
 
+    std::vector<BaseTree<std::string>*> copyOfTrees;
+    copyOfTrees.reserve(trees.size());
+    for (BaseTree<std::string>* tree : trees)
+        copyOfTrees.push_back(tree->clone());
+
     for (int i = 0; i < trees.size(); i ++) {
         threads.emplace_back([i, &times, &barrier, &input]() {
             barrier.arrive_and_wait();
@@ -143,6 +148,13 @@ std::vector<double> runBulkCommands(std::string inputString) {
 
     for (std::thread& thread :threads)
         thread.join();
+
+    // now im done testing, go back to how it was before
+    // it will be inserted again slowly later
+    for (BaseTree<std::string>* tree : trees)
+        delete tree;
+
+    trees = copyOfTrees;
 
     long long minTime = *std::ranges::min_element(times);
     double oneFrame = 1/60.0;

@@ -3,6 +3,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 import { use, useState } from "react";
 import { flushSync } from "react-dom";
+import { useXarrow } from "react-xarrows";
 
 import WasmFactory from "./wasm/TraceAndPace.mjs";
 import type { MainModule } from "./wasm/TraceAndPace.d.mts";
@@ -21,6 +22,9 @@ const wasmPromise = initializeWasm();
 function App() {
   // need to call use becuase its resolution is asyncronous
   const wasm = use(wasmPromise);
+
+  // must ve in
+  const updateXarrow = useXarrow();
 
   // these are strings because react will treat the input as a string the event that we are reading it from returns a string
   // we will only try and parse it into a number once the user submits the form. This allows them to type a negative sign
@@ -47,6 +51,9 @@ function App() {
     flushSync(() => {
       setTreeViews(trees);
     });
+    setTimeout(() => {
+      updateXarrow();
+    }, 10);
   };
 
   return (
@@ -227,7 +234,10 @@ function App() {
           </form>
         </div>
       </nav>
-      <div className="d-flex gap-3 p-3" style={{ flex: 1, alignItems: "stretch" }}>
+      <div
+        className="d-flex gap-3 p-3"
+        style={{ flex: 1, alignItems: "stretch" }}
+      >
         {treeViews.map((tree, i) => (
           <Visualization
             tree={tree}
