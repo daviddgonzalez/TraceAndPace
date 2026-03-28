@@ -66,6 +66,7 @@ public:
         newNode->values.push_back({key, value});
         newNode->childrenNodes.resize(2, nullptr);
         newNode->parent = nullptr;
+        newNode->subTreeSize = 1;
 
         if (parent == nullptr) {
             this->root = newNode;
@@ -150,6 +151,10 @@ private:
 
         y->childrenNodes[0] = x;
         x->parent = y;
+
+        calcSubtreeSizeHelper(x);
+
+        calcSubtreeSizeHelper(y);
     }
 
     void rotateRight(Node* x)
@@ -172,6 +177,11 @@ private:
 
         y->childrenNodes[1] = x;
         x->parent = y;
+
+
+        calcSubtreeSizeHelper(x);
+
+        calcSubtreeSizeHelper(y);
     }
 
     // --- SPLAY ---
@@ -209,5 +219,26 @@ private:
                 rotateLeft(g);
             }
         }
+    }
+
+
+    void calcSubtreeSizeHelper(Node* subtreeRoot){
+        if(!subtreeRoot){
+            return;
+        }
+
+        int leftSubTreeSize = 0;
+        if(subtreeRoot->childrenNodes[0]){
+            leftSubTreeSize = subtreeRoot -> childrenNodes[0] ->subTreeSize;
+        }
+
+        int rightSubTreeSize = 0;
+        if(subtreeRoot->childrenNodes[1]){
+            rightSubTreeSize = subtreeRoot -> childrenNodes[1] ->subTreeSize;
+        }
+
+
+        node->subTreeSize = leftSubTreeSize + rightSubTreeSize + 1;
+
     }
 };
