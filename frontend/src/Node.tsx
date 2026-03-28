@@ -28,7 +28,7 @@ function Node({ node, id, onClick }: props) {
           : "1.5px solid #fc9d0eff",
         backgroundColor: !node.condensed ? "#d1e3ff" : "#ffc47cff",
         overflow: "hidden",
-        fontSize: getFontSize(node.value.length),
+        fontSize: getFontSize(node.keyValPairs.map(keyValPair => keyValPair.value).join(", ").length), //I made values an array bc btree and this grabs the value, joins them all with strings, and takes the length
         fontWeight: 600,
         color: "#000",
         textAlign: "center",
@@ -43,7 +43,7 @@ function Node({ node, id, onClick }: props) {
         }
       }}
     >
-      {node.value}
+      {node.keyValPairs.map(keyValPair => keyValPair.value).join(", ")}
     </div>
   );
 }

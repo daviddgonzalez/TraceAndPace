@@ -211,8 +211,16 @@ private:
         if(budgetPerSubTree<=0){
              json condensedInceptaNode;
 
-             condensedInceptaNode["key"] = subtreeRoot->values[0].first;
-             condensedInceptaNode["value"] = subtreeRoot->values[0].second;
+             json keyValPairArray = json::array();
+
+             for(auto pair: subtreeRoot->values){
+                keyValPairArray.push_back({
+                    {"key", pair.first},
+                    {"value", pair.second}
+                })
+             }
+
+             condensedInceptaNode["keyValPairs"] = keyValPairArray;
 
              condensedInceptaNode["condensed"] = true;
 
