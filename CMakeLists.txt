@@ -25,5 +25,5 @@ add_executable(TraceAndPace ${SOURCE_FILES})
 # Flags for when running emcc (theres a lot)
 set_target_properties(TraceAndPace PROPERTIES
         SUFFIX ".mjs"
-        LINK_FLAGS "-pthread -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 -s PTHREAD_POOL_SIZE=8 -g -s NO_EXIT_RUNTIME=1 -s STANDALONE_WASM=0 --embed-file ${CMAKE_CURRENT_SOURCE_DIR}/frontend/src/assets@/assets --bind --emit-tsd TraceAndPace.d.mts"
+        LINK_FLAGS "-pthread -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 -s ALLOW_MEMORY_GROWTH -s PTHREAD_POOL_SIZE=8 -g -s NO_EXIT_RUNTIME=1 -s STANDALONE_WASM=0 --embed-file ${CMAKE_CURRENT_SOURCE_DIR}/frontend/src/assets@/assets --bind --emit-tsd TraceAndPace.d.mts"
 )
