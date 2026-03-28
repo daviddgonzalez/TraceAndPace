@@ -12,7 +12,7 @@ interface props {
 function Visualization({ tree, wasm, treeIndex, rerenderTreeViews }: props) {
   return (
     <>
-      <div className="card" style={{ width: "18rem" }}>
+      <div className="card" style={{ flex: "1 1 0", minWidth: "250px" }}>
         <div className="card-body">
           <div className="d-flex justify-content-between">
             <h5 className="card-title">{"Tree Name"}</h5>
@@ -26,10 +26,13 @@ function Visualization({ tree, wasm, treeIndex, rerenderTreeViews }: props) {
               }}
             ></button>
           </div>
-          {/* returns an array of nodes */}
-          {tree.visibleNodes.map((node, i) => (
-            <Node key={i} node={node} />
-          ))}
+          {/* the below div is supposed to be for each level of a tree, but david is clowning */}
+          <div className="d-flex justify-content-center gap-2" style={{ overflowX: "auto" }}>
+            {/* returns an array of nodes */}
+            {tree.visibleNodes.map((node, i) => (
+              <Node key={i} node={node} />
+            ))}
+          </div>
         </div>
       </div>
     </>
