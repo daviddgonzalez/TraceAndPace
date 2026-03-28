@@ -217,8 +217,8 @@ private:
                 keyValPairArray.push_back({
                     {"key", pair.first},
                     {"value", pair.second}
-                })
-             }
+                });
+             };
 
              condensedInceptaNode["keyValPairs"] = keyValPairArray;
 
