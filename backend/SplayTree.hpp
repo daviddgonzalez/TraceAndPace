@@ -238,7 +238,7 @@ private:
         }
 
 
-        node->subTreeSize = leftSubTreeSize + rightSubTreeSize + 1;
+        subtreeRoot->subTreeSize = leftSubTreeSize + rightSubTreeSize + 1;
 
     }
 };
