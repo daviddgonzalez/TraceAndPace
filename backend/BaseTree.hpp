@@ -238,23 +238,30 @@ private:
         int amtDisplayedNodes = 1;
 
 
-        int totalSubtreeWeight = 0;
+        int totalSubtreeSize = 0;
 
         for(Node* kid : subtreeRoot->childrenNodes){
             if(kid!=nullptr){
-                totalSubtreeWeight+=kid->subTreeSize;
+                totalSubtreeSize+=kid->subTreeSize;
             }
         }
+
+        int remainingDisplayNodes = budgetPerSubTree-1;
+        int remainingTotNodes = totalSubtreeSize;
+
 
         int childBudget = 0;
         for(Node* child : subtreeRoot->childrenNodes){
             if(child == nullptr) continue;
 
-            if(totalSubtreeWeight == 0){
+            if(totalSubtreeSize== 0){
                 childBudget = 0;
             }
             else{
-                childBudget =std::floor((budgetPerSubTree-1)* child->subTreeSize / (double)totalSubtreeWeight); //This is meant to split the budget proportionally to size of subtree
+                childBudget =std::floor((remainingDisplayNodes)* child->subTreeSize / (double)remainingTotNodes); //This is meant to split the budget proportionally to size of subtree
+
+                remainingDisplayNodes-=childBudget;
+                remainingTotNodes-=child->subtreeSize;
             }
 
             json childNodeInJson = treeCondenser(child, childBudget);
