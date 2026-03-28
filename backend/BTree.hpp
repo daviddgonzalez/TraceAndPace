@@ -39,7 +39,7 @@ public:
     // search returns if it was successful and a pointer to the node
     // find returns just the value, throws an error if the key doesnt exist
 
-    std::pair<bool, typename BaseTree<T>::Node *> search(int target) // typename here to tell teh compiler node is a struct not a variable, so the * is a pointer not mult
+    std::pair<bool, typename BaseTree<T>::Node *> search(int target) override // typename here to tell teh compiler node is a struct not a variable, so the * is a pointer not mult
     // std::pair to act as a helper method for insert.
     { // nullptr if doesnt exist, pointer to node if it does exist
         typename BaseTree<T>::Node* curr = this->root;

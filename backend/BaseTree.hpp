@@ -85,6 +85,7 @@ public:
     virtual bool insert(int i, T value) = 0;
     virtual bool remove(int i) = 0;
     virtual T find(int i) = 0;
+    virtual std::pair<bool, Node*> search(int i) = 0;
     virtual int height() { return root ? root->height : 0; }
 
 
@@ -125,11 +126,21 @@ public:
 
     std::string getWholeViewJson(int limitOfDisplayedNodes){
        json wholeView = treeCondenser(root, 50);
-        return tempTree.dump();
+        return wholeView.dump();
     }
 
-    std::string getSubViewJson(int key, int limit){
-        Node* subtreeRoot = this->find(key);
+    std::string getSubViewJson(int key, int limitOfDisplayedNodes){
+        auto searchResult = this->search(key);
+        Node* subtreeRoot = nullptr;
+        if(searchResult.first){
+            subtreeRoot = searchResult.second;
+        }
+        else{
+            return "{}";
+        }
+
+        return(treeCondenser(subtreeRoot,limitOfDisplayedNodes).dump());
+
         //later problem
     }
 
@@ -246,7 +257,7 @@ private:
 
             json childNodeInJson = treeCondenser(child, childBudget);
             if (!childNodeInJson.is_null()) {
-                
+
                 amtDisplayedNodes += childNodeInJson["displayedNodes"].get<int>();
 
                 expandedInceptaNode["children"].push_back(childNodeInJson);

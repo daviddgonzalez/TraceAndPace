@@ -65,6 +65,15 @@ public:
         successfulSearch = false;
         return T();
     }
+
+    std::pair<bool, typename BaseTree<T>::Node* > search(int id)override {
+        Node* node = findNode(id);
+        if (node != nullptr) {
+            return {true,node};
+        }
+        return{false,nullptr};
+    }
+
     int height() override {return BaseTree<T>::height();}
 protected:
     // making each access to the parents members less verbose

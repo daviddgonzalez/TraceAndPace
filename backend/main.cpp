@@ -39,4 +39,6 @@ EMSCRIPTEN_BINDINGS(testing_module) {
     // we will only export functions that will be called on button presses if that makes sense
 
     emscripten::function("getWholeView",&getWholeView);
+    emscripten::function("getSubView", &getSubView);
+
 }
