@@ -204,7 +204,7 @@ public:
         return T();
     }
 
-    std::pair<bool,BaseTree<T>::Node*> search(int id) {
+    std::pair<bool,typename BaseTree<T>::Node*> search(int id) override{
         std::pair<bool, Node*> out;
         Node* node = findNode(id);
         if (node != nullptr) {
@@ -358,6 +358,7 @@ private:
     void updateHeight(Node* start) {
         while (start) {
             start->height = std::max(start->left ? start->left->height : 0, start->right ? start->right->height : 0) + 1;
+            start->subTreeSize = start->left->subTreeSize + start->right->subTreeSize + 1;
             start = start->parent;
         }
     }
