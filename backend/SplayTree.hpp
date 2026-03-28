@@ -9,7 +9,7 @@ public:
     using Node = typename BaseTree<T>::Node;
 
     // --- SEARCH ---
-    std::pair<bool, Node*> search(int key)
+    std::pair<bool, Node*> search(int key) override
     {
         Node* curr = this->root;
         Node* last = nullptr;

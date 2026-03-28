@@ -191,3 +191,8 @@ std::string getWholeView(int treeIndex, int limitOfDisplayedNodes){
     std::string temp = trees[treeIndex]->getWholeViewJson(limitOfDisplayedNodes);
     return temp;
 }
+
+std::string getSubView(int treeIndex, int key, int limitOfDisplayedNodes){
+    std::string temp = trees[treeIndex]->getSubViewJson(key, limitOfDisplayedNodes);
+    return temp;
+}
