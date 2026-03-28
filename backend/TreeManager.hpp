@@ -19,7 +19,7 @@ void addAVLTree() {
     trees.push_back(new AVLTree<std::string>);
 }
 void addBTree() {
-    trees.push_back(new VisualBTree<std::string>);
+    trees.push_back(new VisualBTree<std::string>(3));
 }
 void addSplayTree() {
     trees.push_back(new SplayTree<std::string>);

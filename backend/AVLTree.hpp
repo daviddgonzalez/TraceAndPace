@@ -1,42 +1,109 @@
-// A lot of this code was "inspired" by I (michael capelli's) and (david gonzalez's) project 1 code
-
 #pragma once
+#include <algorithm>
+#include <queue>
+#include <utility>
 #include "BaseTree.hpp"
 
+// This is a typed implementation of an AVL tree, the special restrictions on the tree are done using GatorTree
 template <typename T>
-class AVLTree : public BaseTree<T> {
+class AVLTree : BaseTree<T> {
 public:
-    AVLTree() = default;
 
-    bool insert(int id, T item) override {
-        Node* toInsert = new Node();
-        toInsert->values.push_back({id, item});
-        toInsert->childrenNodes.assign(2,nullptr); // i greatly dislike how this looks
+    // I need the big five because i have heap allocated memory here
+    AVLTree(const AVLTree& other) {
+        if (other.root == nullptr)
+            return;
+
+        std::queue<Node*> nodes;
+
+        nodes.push(other.root);
+
+        while (!nodes.empty()) {
+            insert(nodes.front()->id, nodes.front()->value);
+
+            if (nodes.front()->left)
+                nodes.push(nodes.front()->left);
+            if (nodes.front()->right)
+                nodes.push(nodes.front()->right);
+
+            nodes.pop();
+        }
+    }
+    AVLTree(AVLTree&& other) noexcept{
+        root = other.root;
+        other.root = nullptr;
+    }
+    AVLTree& operator=(const AVLTree& other) {
+        if (&other == this)
+            return *this;
+
+        delete root;
+        root = nullptr;
+
+        if (other.root == nullptr)
+            return *this;
+
+        std::queue<Node*> nodes;
+
+        nodes.push(other.root);
+
+        while (!nodes.empty()) {
+            insert(nodes.front()->id, nodes.front()->value);
+
+            if (nodes.front()->left)
+                nodes.push(nodes.front()->left);
+            if (nodes.front()->right)
+                nodes.push(nodes.front()->right);
+
+            nodes.pop();
+        }
+        successfulSearch = false;
+
+        return *this;
+    }
+    AVLTree& operator=(AVLTree&& other) noexcept {
+        if (this == &other)
+            return *this;
+
+        delete root;
+        root = other.root;
+        other.root = nullptr;
+
+        successfulSearch = false;
+
+        return *this;
+    }
+    ~AVLTree() {
+        delete root;
+    }
+
+    bool insert(const int& id, const T& item) {
+        Node* toInsert = new Node(id,item);
 
         if (root == nullptr) {
             root = toInsert;
         }else {
             Node* current = root;
             while (current != nullptr) {
-                if (current->values.front().first == id) {
+                if (current->id == id) {
                     delete toInsert;
                     return false;
                 }
-                if (id > current->values.front().first) {
-                    if (current->childrenNodes[1] == nullptr) {
-                        current->childrenNodes[1] = toInsert;
+                if (id > current->id) {
+                    if (current->right == nullptr) {
+                        current->right = toInsert;
                         toInsert->parent = current;
                         current = nullptr;
                     }else
-                        current = current->childrenNodes[1];
+                        current = current->right;
                 }
                 else{
-                    if (current->childrenNodes[0] == nullptr) {
-                        current->childrenNodes[0] = toInsert;
+                    if (current->left == nullptr) {
+                        current->left = toInsert;
                         toInsert->parent = current;
                         current = nullptr;
                     }else
-                        current = current->childrenNodes[0];
+                        current = current->left;
                 }
             }
         }
@@ -45,56 +112,148 @@ public:
         return true;
     }
 
-    // removal logic, I absolutely mogged michael's code
-     bool remove(int g) override{ // successful/unsuccessful
-        if(removeHelper(root, g)) {
-            return true;
-        }
-        else {
+    // removal logic, there is no balancing after removal, just bst removal
+    bool remove(int id) {
+        Node* node = findNode(id);
+        Node* nodeHeightToUpdate;
+        if (node == nullptr)
             return false;
+
+        if (node->left && node->right) {
+            // set replacement as inorder successor
+            Node* replacement = node->right;
+
+            while (replacement->left)
+                replacement = replacement->left;
+
+            // from this guy up I need to update the height
+            nodeHeightToUpdate = replacement->parent;
+
+            if (replacement != node->right) {
+                replacement->parent->left = replacement->right;
+                if (replacement->right) // before the pointer to replacement->right is changed i need to set it's new parent
+                    replacement->right->parent = replacement->parent;
+                replacement->right = node->right;
+
+                if (replacement->right)
+                    replacement->right->parent = replacement;
+            }else // if the above if statement is false then nodeHeightToUpdate is going to be deleted
+                nodeHeightToUpdate = replacement;
+
+            replacement->left = node->left;
+            if (replacement->left)
+                replacement->left->parent = replacement;
+
+            // making sure the parent has updated child
+            if (node->parent) {
+                replacement->parent = node->parent;
+                if (node->parent->left == node)
+                    node->parent->left = replacement;
+                else
+                    node->parent->right = replacement;
+            }else {
+                root = replacement;
+                replacement->parent = nullptr;
+            }
+
+            node->right = nullptr;
+            node->left = nullptr;
+            delete node;
+        }else {
+            // this is the removal case that there is 0 - 1 children
+            Node* replacement;
+            nodeHeightToUpdate = node->parent;
+
+            // only one of these is true and if neither is then this node is a leaf
+            if (node->left)
+                replacement = node->left;
+            else if (node->right)
+                replacement = node->right;
+            else
+                replacement = nullptr;
+
+            if (node->parent) {
+                if (node->parent->left == node)
+                    node->parent->left = replacement;
+                else
+                    node->parent->right = replacement;
+            }else {
+                root = replacement;
+            }
+
+            if (replacement)
+                replacement->parent = node->parent;
+
+            node->left = nullptr;
+            node->right = nullptr;
+            delete node;
         }
+        // this travels up the tree to make sure that the heights are updated correctly.
+        // This makes sure that rotations and height calls are correct
+        updateHeight(nodeHeightToUpdate);
+        return true;
     }
 
-    
-    T find(int id) override {
+    T find(int id) {
         Node* node = findNode(id);
         if (node != nullptr) {
             successfulSearch = true;
-            return node->values.front().second;
+            return node->value;
         }
         successfulSearch = false;
         return T();
     }
-    int height() override {return BaseTree<T>::height();}
-protected:
-    // making each access to the parents members less verbose
-    using typename BaseTree<T>::Node;
-    using BaseTree<T>::successfulSearch;
-    using BaseTree<T>::root;
 
+    std::pair<bool,BaseTree<T>::Node*> search(int id) {
+        std::pair<bool, Node*> out;
+        Node* node = findNode(id);
+        if (node != nullptr) {
+            out.first = true;
+            out.second = node;
+            return out;
+        }
+        out.first = false;
+        out.second = nullptr;
+        return out;
+    }
+
+    // i use height to check for balancing, this just takes the root height
+    // i made a height function to be able to test
+    int height() {
+        if (root == nullptr)
+            return 0;
+        return root->height;
+    }
+private:
+    using typename BaseTree<T>::Node;
+    using BaseTree<T>::root;
+    using BaseTree<T>::successfulSearch;
+
+    // searches for an ID and returns a pointer to the corresponding node
     Node* findNode(int id) {
         Node* current = root;
         while (current != nullptr) {
-            if (current->values.front().first == id)
+            if (current->id == id)
                 return current;
 
-            if (id > current->values.front().first)
-                current = current->childrenNodes[1];
+            if (id > current->id)
+                current = current->right;
             else
-                current = current->childrenNodes[0];
+                current = current->left;
         }
         return current;
     }
+
     // starts at the passed node and traverses up the tree checking for any rotations that need to be done
     // if it finds an imbalance it calls the according helper function for that rotation case
     void balanceTree(Node* node) {
         while (node) {
-            int balanceFactor = (node->childrenNodes[0] ? node->childrenNodes[0]->height : 0) - (node->childrenNodes[1] ? node->childrenNodes[1]->height : 0);
+            int balanceFactor = (node->left ? node->left->height : 0) - (node->right ? node->right->height : 0);
 
             // balance factors for the two children. this feels very suboptimal because your recalculating the same numbers a few times.
             // I still think that having the heights instead of the balance factors is the better option
-            int leftBF = node->childrenNodes[0] ? (node->childrenNodes[0]->childrenNodes[0] ? node->childrenNodes[0]->childrenNodes[0]->height : 0) - (node->childrenNodes[0]->childrenNodes[1] ? node->childrenNodes[0]->childrenNodes[1]->height : 0) : 0;
-            int rightBF = node->childrenNodes[1] ? (node->childrenNodes[1]->childrenNodes[0] ? node->childrenNodes[1]->childrenNodes[0]->height : 0) - (node->childrenNodes[1]->childrenNodes[1] ? node->childrenNodes[1]->childrenNodes[1]->height : 0) : 0;
+            int leftBF = node->left ? (node->left->left ? node->left->left->height : 0) - (node->left->right ? node->left->right->height : 0) : 0;
+            int rightBF = node->right ? (node->right->left ? node->right->left->height : 0) - (node->right->right ? node->right->right->height : 0) : 0;
 
             if (balanceFactor > 1 && leftBF >= 0)
                 node = rotateLeftLeft(node);
@@ -107,228 +266,99 @@ protected:
 
             // this makes sure that after rotation the parents left and right pointers point to the right places
             if ((balanceFactor < -1 || balanceFactor > 1) && node->parent) {
-                if (node->parent->values.front().first > node->values.front().first)
-                    node->parent->childrenNodes[0] = node;
+                if (node->parent->id > node->id)
+                    node->parent->left = node;
                 else
-                    node->parent->childrenNodes[1] = node;
+                    node->parent->right = node;
             }else //if (node->parent == nullptr)
                 root = node;
 
             // if there was a rotation then we need to check the height
             if (balanceFactor < -1 || balanceFactor > 1) {
-                if (node->childrenNodes[1])
-                    node->childrenNodes[1]->height  = std::max(node->childrenNodes[1]->childrenNodes[1] ? node->childrenNodes[1]->childrenNodes[1]->height : 0, node->childrenNodes[1]->childrenNodes[0] ? node->childrenNodes[1]->childrenNodes[0]->height : 0) + 1;
-                if (node->childrenNodes[0])
-                    node->childrenNodes[0]->height = std::max(node->childrenNodes[0]->childrenNodes[0] ? node->childrenNodes[0]->childrenNodes[0]->height : 0, node->childrenNodes[0]->childrenNodes[1] ? node->childrenNodes[0]->childrenNodes[1]->height : 0) +1 ;
+                if (node->right)
+                    node->right->height  = std::max(node->right->right ? node->right->right->height : 0, node->right->left ? node->right->left->height : 0) + 1;
+                if (node->left)
+                    node->left->height = std::max(node->left->left ? node->left->left->height : 0, node->left->right ? node->left->right->height : 0) +1 ;
             }
 
             //should always update this nodes height
-            node->height = std::max(node->childrenNodes[0] ? node->childrenNodes[0]->height : 0, node->childrenNodes[1] ? node->childrenNodes[1]->height : 0) + 1;
+            node->height = std::max(node->left ? node->left->height : 0, node->right ? node->right->height : 0) + 1;
             node = node->parent;
         }
     }
 
     // all the different rotation cases
     Node* rotateRightRight(Node* node) {
-        Node* out = node->childrenNodes[1];
+        Node* out = node->right;
         out->parent = node->parent;
         node->parent = out;
-        node->childrenNodes[1] = out->childrenNodes[0];
-        out->childrenNodes[0] = node;
-        if (node->childrenNodes[1])
-            node->childrenNodes[1]->parent = node;
+        node->right = out->left;
+        out->left = node;
+        if (node->right)
+            node->right->parent = node;
         return out;
     }
     Node* rotateLeftLeft(Node* node) {
-        Node* out = node->childrenNodes[0];
+        Node* out = node->left;
         out->parent = node->parent;
         node->parent = out;
-        node->childrenNodes[0] = out->childrenNodes[1];
-        out->childrenNodes[1] = node;
-        if (node->childrenNodes[0])
-            node->childrenNodes[0]->parent = node;
+        node->left = out->right;
+        out->right = node;
+        if (node->left)
+            node->left->parent = node;
         return out;
     }
     Node* rotateRightLeft(Node* node) {
-        Node* out = node->childrenNodes[1]->childrenNodes[0];
+        Node* out = node->right->left;
 
-        out->parent->childrenNodes[0] = out->childrenNodes[1];
-        if (out->childrenNodes[1])
-            out->childrenNodes[1]->parent = out->parent;
-        out->childrenNodes[1] = node->childrenNodes[1];
-        node->childrenNodes[1] = out->childrenNodes[0];
-        if (out->childrenNodes[0])
-            out->childrenNodes[0]->parent = node;
-        out->childrenNodes[0] = node;
+        out->parent->left = out->right;
+        if (out->right)
+            out->right->parent = out->parent;
+        out->right = node->right;
+        node->right = out->left;
+        if (out->left)
+            out->left->parent = node;
+        out->left = node;
         out->parent = node->parent;
 
-        out->childrenNodes[0]->parent = out;
-        out->childrenNodes[1]->parent = out;
+        out->left->parent = out;
+        out->right->parent = out;
 
         return out;
     }
     Node* rotateLeftRight(Node* node) {
-        Node* out = node->childrenNodes[0]->childrenNodes[1];
+        Node* out = node->left->right;
 
-        out->parent->childrenNodes[1] = out->childrenNodes[0];
-        if (out->childrenNodes[0])
-            out->childrenNodes[0]->parent = out->parent;
-        out->childrenNodes[0] = node->childrenNodes[0];
-        node->childrenNodes[0] = out->childrenNodes[1];
-        if (out->childrenNodes[1])
-            out->childrenNodes[1]->parent = node;
-        out->childrenNodes[1] = node;
+        out->parent->right = out->left;
+        if (out->left)
+            out->left->parent = out->parent;
+        out->left = node->left;
+        node->left = out->right;
+        if (out->right)
+            out->right->parent = node;
+        out->right = node;
         out->parent = node->parent;
 
-        out->childrenNodes[0]->parent = out;
-        out->childrenNodes[1]->parent = out;
+        out->left->parent = out;
+        out->right->parent = out;
 
         return out;
     }
+    std::vector<T> printPostOrderHelper(Node* node) {
+        if (node == nullptr)
+            return {};
+        std::vector<T> left = printPostOrderHelper(node->left);
+        std::vector<T> right = printPostOrderHelper(node->right);
+        left.insert(left.end(), right.begin(), right.end());
+        left.push_back(node->value);
+        return left;
+    }
+
     // will start at the passed node and work its way up the tree updating heights
     void updateHeight(Node* start) {
         while (start) {
-            start->height = std::max(start->childrenNodes[0] ? start->childrenNodes[0]->height : 0, start->childrenNodes[1] ? start->childrenNodes[1]->height : 0) + 1;
+            start->height = std::max(start->left ? start->left->height : 0, start->right ? start->right->height : 0) + 1;
             start = start->parent;
         }
     }
-
-
-
-    //THIS IS AWESOME DAVID AVL TREE CODE
-    bool removeHelper(Node*& r, const int& g) {
-        if (r == nullptr){return false;}
-
-        bool success = false;
-        if (g < r->values.front().first) {
-            success = (removeHelper(r->childrenNodes[0],g));
-        }
-        else if (g > r->values.front().first) {
-            success =(removeHelper(r->childrenNodes[1], g));
-        }
-        else {
-            success = true;
-
-            //4 Cases when node is alr found
-            // 1. Node has no kids (easy)
-            if (r->childrenNodes[0] == nullptr && r->childrenNodes[1] == nullptr) {
-                delete r;
-                r = nullptr;
-            }
-            // 2. Node has left kid
-            else if (r->childrenNodes[1] == nullptr) {
-                Node* temp = r;
-                r = r->childrenNodes[0]; // updates parent bc we passed in by reference not value
-                delete temp; // r doesnt store actual value of r now
-            }
-
-            //3. Node has right kid
-            else if (r->childrenNodes[0] == nullptr) { //mirrored case of 2
-                Node* temp = r;
-                r = r->childrenNodes[1];
-                delete temp;
-            }
-
-            // 4. Node has two kids (have to find the inorder succession)
-            else {
-                Node* inOrderSuccessor = r->childrenNodes[1];
-                while (inOrderSuccessor->childrenNodes[0]) {
-                    inOrderSuccessor = inOrderSuccessor->childrenNodes[0]; //is now the left most thing on the right subtree.
-                }
-                r->values.front().first = inOrderSuccessor->values.front().first;
-                r->values.front().second = inOrderSuccessor->values.front().second;
-
-                removeHelper(r->childrenNodes[1], r->values.front().first); // we have to pass r->childrenNodes[1] and have it go thru the
-                // tree bc if we passed successor it would update the successor pointer and not the tree's pointer
-                //have to pass r->values.front().first because inOrder is going to be deleted so it would have a dangling reference
-            }
-        }
-        if (!success || r == nullptr) {
-            return success; // return false if we didnt find node or if it was null bc we dont have to balance in these cases
-        }
-
-        r->height = 1 + std::max(heightCheck(r->childrenNodes[0]),heightCheck(r->childrenNodes[1])); // O(log n) bc it cuts the amount of nodes it could
-        //visit in half every time it recursively calls
-
-        rotate(r);
-
-        return true;
-    }
-
-    int heightCheck(Node* r) {
-        if (r == nullptr) {
-           return 0;
-        }
-        return r->height;
-    }
-
-     void rotate(Node*& r) {
-        if (r == nullptr) {
-            return;
-        }
-        int parentBF = calcBalanceFactor(r);
-
-        if (abs(parentBF) <= 1){ //should never do this but js in case?
-            return;
-        }
-        int rightBF = calcBalanceFactor(r->childrenNodes[1]);;
-
-        int leftBF = calcBalanceFactor(r->childrenNodes[0]);
-
-        int childBF = parentBF == -2 ? rightBF : leftBF; //if tree is right heavy we care about right kid,
-                                                        // if tree is left heavy we care about left kid
-
-        if (parentBF == -2) {
-            if (childBF <=0) { //right right case
-                leftRotation(r);
-            }
-            else { //right left case
-                rightRotation(r->childrenNodes[1]);
-                leftRotation(r);
-            }
-        }
-        else {
-            if (childBF >= 0) { //left left case
-                rightRotation(r);
-            }
-            else { //left right case
-                leftRotation(r->childrenNodes[0]);
-                rightRotation(r);
-            }
-        }
-    }
-
-    int calcBalanceFactor(Node* r) {
-        if (r==nullptr) {
-            return 0;
-        }
-        int leftHeight = heightCheck(r->childrenNodes[0]);
-        int rightHeight = heightCheck(r->childrenNodes[1]);
-
-        return(leftHeight-rightHeight);
-    }
-
-    void leftRotation(typename BaseTree<T>::Node*& r) {
-        typename BaseTree<T>::Node* rightKid = r->childrenNodes[1]; // should always exist
-        r->childrenNodes[1] = rightKid->childrenNodes[0];
-        rightKid->childrenNodes[0] = r;
-
-        r->height = 1 + std::max(heightCheck(r->childrenNodes[0]), heightCheck(r->childrenNodes[1]));
-        rightKid->height = 1 + std::max(heightCheck(rightKid->childrenNodes[0]), heightCheck(rightKid->childrenNodes[1]));
-
-        r = rightKid;
-    }
-
-    void rightRotation(typename BaseTree<T>::Node*& r) {
-        typename BaseTree<T>::Node* leftKid = r->childrenNodes[0]; //should always exist
-        r->childrenNodes[0] = leftKid->childrenNodes[1];
-        leftKid->childrenNodes[1] = r;
-
-        r->height = 1 + std::max(heightCheck(r->childrenNodes[0]),heightCheck(r->childrenNodes[1]));
-        leftKid->height = 1 + std::max(heightCheck(leftKid->childrenNodes[0]),heightCheck(leftKid->childrenNodes[1]));
-
-
-        r = leftKid;
-    }    
-
 };

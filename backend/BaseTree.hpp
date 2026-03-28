@@ -125,7 +125,7 @@ public:
 
     std::string getWholeViewJson(int limitOfDisplayedNodes){
        json wholeView = treeCondenser(root, 50);
-        return tempTree.dump();
+        return wholeView.dump();
     }
 
     std::string getSubViewJson(int key, int limit){
@@ -134,7 +134,6 @@ public:
     }
 
 protected:
-
 
     bool successfulSearch = false;
 

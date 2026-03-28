@@ -1,5 +1,5 @@
 // michael changed the name and file type. David: you should try and maintain the design patterns of the project
-//I'm sorry Michael :( I will try harder next time
+// I'm sorry Michael :( I will try harder next time
 
 export interface InceptaNode {
   key: number;
@@ -7,9 +7,8 @@ export interface InceptaNode {
   condensed: boolean;
   totalNumOfNodes: number;
   displayedNodes: number;
-  children: InceptaNode[]
+  children?: InceptaNode[];
 }
-
 
 // Summary about what I learned about interfaces in javascript
 // It's essentially a struct that doesnt alter how memory is saved
