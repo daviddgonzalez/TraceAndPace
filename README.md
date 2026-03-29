@@ -1,3 +1,9 @@
+# What is our project?
+Our project, TraceAndPace, is a simulation racing two different data structures for a variety of operations and timing them,
+this is to help educate people about the use cases of certain data structures for certain use cases and data sets.
+
+
+
 # Michael's Additions to the Documentation
 
 There are a few quirks with our development pipeline we are going to be working with. Our workflow is going to be a frontend of HTML and typescript. The backend will be written in C++ but compiled into 
